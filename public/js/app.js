@@ -103,10 +103,12 @@ async function launch() {
   pipeState(0, 'active');
 
   // ── ÉTAPE 1 : Géocodage ──
-  if (!currentCoords) {
+  // Toujours regéocoder
+  if (true || !currentCoords) {
     currentCoords = await geocode(address);
   }
-  if (!currentCoords) {
+  // Toujours regéocoder
+  if (true || !currentCoords) {
     pipeState(0, 'error');
     alert('Adresse introuvable. Essayez avec une adresse plus précise.');
     document.getElementById('launchBtn').disabled = false;
