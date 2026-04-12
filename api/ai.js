@@ -129,7 +129,7 @@ module.exports = async (req, res) => {
   let pluText = '';
   let pluAvailable = false;
 
-  if (urlfic) {
+  if (false && urlfic) {
     try {
       console.log('[AI] Téléchargement PLU:', urlfic);
       const pdfBuffer = await downloadPDF(urlfic);
