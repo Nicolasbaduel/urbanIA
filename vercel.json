@@ -1,17 +1,1 @@
-{
-  "version": 2,
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
-  "routes": [
-    { "src": "/api/health", "dest": "/api/health.js" },
-    { "src": "/api/geocode", "dest": "/api/geocode.js" },
-    { "src": "/api/gpu", "dest": "/api/gpu.js" },
-    { "src": "/api/ai", "dest": "/api/ai.js" },
-    { "src": "/css/(.*)", "dest": "/public/css/$1" },
-    { "src": "/js/(.*)", "dest": "/public/js/$1" },
-    { "src": "/(.*)", "dest": "/public/index.html" }
-  ]
-}
+{"version":2,"routes":[{"src":"/api/health","dest":"/api/health.js"},{"src":"/api/geocode","dest":"/api/geocode.js"},{"src":"/api/gpu","dest":"/api/gpu.js"},{"src":"/api/ai","dest":"/api/ai.js"},{"src":"/css/(.*)","dest":"/public/css/$1"},{"src":"/js/(.*)","dest":"/public/js/$1"},{"src":"/(.*)","dest":"/public/index.html"}]}
