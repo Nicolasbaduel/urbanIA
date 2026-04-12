@@ -156,9 +156,9 @@ async function fetchZone(lat, lon) {
   }
 }
 
-// Analyse IA → /api/ai/analyze
+// Analyse IA → /api/ai
 async function callAI(payload) {
-  const r = await fetch('/api/ai/analyze', {
+  const r = await fetch('/api/ai', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(payload)
