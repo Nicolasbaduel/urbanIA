@@ -140,7 +140,7 @@ async function launch() {
 // APPELS API VIA NOTRE SERVEUR
 // ════════════════════════════════════════
 
-// Géocodage → /api/geocode/search
+// Géocodage → /api/geocode
 async function geocode(address) {
   try {
     const r = await fetch(`/api/geocode?q=${encodeURIComponent(address)}&limit=1`);
@@ -170,9 +170,9 @@ async function fetchCadastre(lat, lon) {
   } catch(e) { return null; }
 }
 
-// Analyse IA → /api/ai/analyze
+// Analyse IA → /api/ai
 async function callAI(payload) {
-  const r = await fetch('/api/ai/analyze', {
+  const r = await fetch('/api/ai', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(payload)
