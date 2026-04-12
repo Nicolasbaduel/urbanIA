@@ -39,7 +39,7 @@ function downloadPDF(url, redirectCount) {
     const chunks = [];
     const req = protocol.get(url, {
       headers: { 'User-Agent': 'UrbanIA/1.0', 'Accept': 'application/pdf,*/*' },
-      timeout: 20000
+      timeout: 8000
     }, (res) => {
       if ([301,302,307,308].includes(res.statusCode) && res.headers.location) {
         return downloadPDF(res.headers.location, redirectCount + 1).then(resolve).catch(reject);
