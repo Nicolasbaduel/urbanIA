@@ -90,6 +90,7 @@ async function launch() {
   if (!address)  { flash('addressInput');  return; }
 
   currentAddress = address;
+  currentCadastre = null;
 
   // UI : désactiver bouton, cacher how-it-works
   document.getElementById('launchBtn').disabled = true;
