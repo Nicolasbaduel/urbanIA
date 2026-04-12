@@ -44,7 +44,7 @@ function onAddrInput() {
 async function fetchSuggestions(q) {
   try {
     // Appel à notre serveur → qui appelle api-adresse.data.gouv.fr
-    const r = await fetch(`/api/geocode/search?q=${encodeURIComponent(q)}&limit=5`);
+    const r = await fetch(`/api/geocode?q=${encodeURIComponent(q)}&limit=5`);
     const d = await r.json();
     if (d.results?.length) showSug(d.results);
     else hideSug();
@@ -143,7 +143,7 @@ async function launch() {
 // Géocodage → /api/geocode/search
 async function geocode(address) {
   try {
-    const r = await fetch(`/api/geocode/search?q=${encodeURIComponent(address)}&limit=1`);
+    const r = await fetch(`/api/geocode?q=${encodeURIComponent(address)}&limit=1`);
     const d = await r.json();
     return d.results?.[0] || null;
   } catch(e) { return null; }
@@ -170,9 +170,9 @@ async function fetchCadastre(lat, lon) {
   } catch(e) { return null; }
 }
 
-// Analyse IA → /api/ai/analyze
+// Analyse IA → /api/ai
 async function callAI(payload) {
-  const r = await fetch('/api/ai/analyze', {
+  const r = await fetch('/api/ai', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(payload)
