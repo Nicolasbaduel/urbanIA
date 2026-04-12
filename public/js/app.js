@@ -6,6 +6,7 @@
 
 // ── STATE ──
 let currentZone    = null;
+let currentCadastre = null;
 let currentCoords  = null;
 let currentAddress = '';
 let suggestTimer   = null;
@@ -43,7 +44,7 @@ function onAddrInput() {
 async function fetchSuggestions(q) {
   try {
     // Appel à notre serveur → qui appelle api-adresse.data.gouv.fr
-    const r = await fetch(`/api/geocode?q=${encodeURIComponent(q)}&limit=5`);
+    const r = await fetch(`/api/geocode/search?q=${encodeURIComponent(q)}&limit=5`);
     const d = await r.json();
     if (d.results?.length) showSug(d.results);
     else hideSug();
@@ -116,6 +117,9 @@ async function launch() {
   // ── ÉTAPE 2 : Zone PLU (GPU) ──
   const zoneData = await fetchZone(currentCoords.lat, currentCoords.lon);
   currentZone = zoneData;
+
+  // Récupération des données cadastrales (en parallèle)
+  fetchCadastre(currentCoords.lat, currentCoords.lon).then(d => { currentCadastre = d; });
   pipeState(1, 'done'); pipeState(2, 'active');
 
   // ── ÉTAPE 3 : Afficher la zone ──
@@ -136,10 +140,10 @@ async function launch() {
 // APPELS API VIA NOTRE SERVEUR
 // ════════════════════════════════════════
 
-// Géocodage → /api/geocode
+// Géocodage → /api/geocode/search
 async function geocode(address) {
   try {
-    const r = await fetch(`/api/geocode?q=${encodeURIComponent(address)}&limit=1`);
+    const r = await fetch(`/api/geocode/search?q=${encodeURIComponent(address)}&limit=1`);
     const d = await r.json();
     return d.results?.[0] || null;
   } catch(e) { return null; }
@@ -156,9 +160,19 @@ async function fetchZone(lat, lon) {
   }
 }
 
-// Analyse IA → /api/ai
+
+// Données cadastrales → /api/cadastre
+async function fetchCadastre(lat, lon) {
+  try {
+    const r = await fetch(`/api/cadastre?lat=${lat}&lon=${lon}`);
+    const d = await r.json();
+    return d;
+  } catch(e) { return null; }
+}
+
+// Analyse IA → /api/ai/analyze
 async function callAI(payload) {
-  const r = await fetch('/api/ai', {
+  const r = await fetch('/api/ai/analyze', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(payload)
@@ -203,7 +217,8 @@ async function askQuestion(question) {
       postcode:  currentZone?.codeInsee || currentCoords?.postcode,
       address:   currentAddress,
       urlfic:    currentZone?.urlfic,
-      datappro:  currentZone?.datappro
+      datappro:  currentZone?.datappro,
+      cadastre:  currentCadastre
     });
 
     document.getElementById(shimmerId)?.remove();
@@ -286,6 +301,26 @@ function renderZoneCard(zone, coords) {
     </div>`).join('');
 
   document.getElementById('zoneCard').classList.remove('hidden');
+  
+  // Afficher les données cadastrales quand disponibles
+  setTimeout(async () => {
+    if (currentCadastre?.calculs) {
+      const c = currentCadastre.calculs;
+      const p = currentCadastre.parcelle;
+      let cadastreHtml = '';
+      if (p?.found && c.surfaceParcelle > 0) {
+        cadastreHtml = `
+          <div class='cadastre-strip'>
+            <span class='cad-item'><span class='cad-label'>Parcelle</span><strong>${c.surfaceParcelle} m²</strong></span>
+            ${c.empriseExistante > 0 ? `<span class='cad-item'><span class='cad-label'>Bâti existant</span><strong>${c.empriseExistante} m²</strong></span>` : ''}
+            ${c.tauxOccupationActuel !== null ? `<span class='cad-item'><span class='cad-label'>Taux occupé</span><strong>${c.tauxOccupationActuel}%</strong></span>` : ''}
+            <span class='cad-item cad-green'><span class='cad-label'>Constructible est.</span><strong>${c.disponibleSi50pct} m²</strong></span>
+            ${p.section ? `<span class='cad-item'><span class='cad-label'>Réf. cadastre</span><strong>Sec. ${p.section} n°${p.numero}</strong></span>` : ''}
+          </div>`;
+        document.getElementById('zoneRules').insertAdjacentHTML('afterend', cadastreHtml);
+      }
+    }
+  }, 2000);
 }
 
 function zoneRules(z) {

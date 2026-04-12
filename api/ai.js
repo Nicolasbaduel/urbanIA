@@ -39,7 +39,7 @@ function downloadPDF(url, redirectCount) {
     const chunks = [];
     const req = protocol.get(url, {
       headers: { 'User-Agent': 'UrbanIA/1.0', 'Accept': 'application/pdf,*/*' },
-      timeout: 8000
+      timeout: 20000
     }, (res) => {
       if ([301,302,307,308].includes(res.statusCode) && res.headers.location) {
         return downloadPDF(res.headers.location, redirectCount + 1).then(resolve).catch(reject);
@@ -122,14 +122,14 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Méthode non autorisée' });
   if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'Clé Anthropic manquante dans Vercel → Settings → Environment Variables' });
 
-  const { question, zone, zoneFull, commune, postcode, address, urlfic, datappro } = req.body || {};
+  const { question, zone, zoneFull, commune, postcode, address, urlfic, datappro, cadastre } = req.body || {};
   if (!question) return res.status(400).json({ error: 'Champ "question" requis' });
 
   // ── Lecture du PDF PLU officiel ──
   let pluText = '';
   let pluAvailable = false;
 
-  if (false && urlfic) {
+  if (urlfic) {
     try {
       console.log('[AI] Téléchargement PLU:', urlfic);
       const pdfBuffer = await downloadPDF(urlfic);
@@ -148,9 +148,28 @@ module.exports = async (req, res) => {
     ? `Zone PLU : ${zone} — ${zoneFull||''}\nCommune : ${commune||'non précisée'} (${postcode||''})\nDate approbation : ${datappro||'non renseignée'}`
     : `Adresse : ${address||'non précisée'} — Zone PLU non identifiée`;
 
+  // Contexte cadastral
+  const c = cadastre;
+  const cadastreCtx = c && c.calculs ? [
+    'DONNEES CADASTRALES OFFICIELLES (API Cadastre IGN) :',
+    '- Surface parcelle         : ' + c.calculs.surfaceParcelle + ' m²',
+    '- Emprise bati existant    : ' + (c.calculs.empriseExistante > 0 ? c.calculs.empriseExistante + ' m²' : 'Non disponible'),
+    '- Taux occupation actuel   : ' + (c.calculs.tauxOccupationActuel !== null ? c.calculs.tauxOccupationActuel + '%' : 'Non calcule'),
+    '- Ref. cadastrale          : Section ' + (c.parcelle && c.parcelle.section || '?') + ' n°' + (c.parcelle && c.parcelle.numero || '?'),
+    'MARGES CONSTRUCTIBLES :',
+    '- Si CES 50% (dense)       : ' + c.calculs.disponibleSi50pct + ' m² disponibles',
+    '- Si CES 40% (mixte)       : ' + c.calculs.disponibleSi40pct + ' m² disponibles',
+    '- Si CES 30% (pavillonnaire): ' + c.calculs.disponibleSi30pct + ' m² disponibles',
+    '- Veranda max sans permis  : ' + c.calculs.verandaSansPermis + ' m²'
+  ].join('
+') : '';
+
+
   const systemPrompt = `Tu es UrbanIA, expert en droit de l'urbanisme français et PLU.
 ${pluAvailable ? 'Tu disposes du TEXTE RÉEL du règlement PLU officiel. Cite les articles précis.' : 'PDF PLU non disponible. Réponds sur règles générales françaises.'}
-Réponds UNIQUEMENT en JSON valide, sans markdown.`;
+${cadastreCtx ? 'Tu as les DONNEES CADASTRALES REELLES. Utilise ces chiffres precis.' : ''}
+Reponds UNIQUEMENT en JSON valide, sans markdown.`;
+
 
   const pluContext = pluAvailable ? `\n\n=== RÈGLEMENT PLU OFFICIEL (${urlfic}) ===\n${pluText}\n=== FIN ===` : '';
 
@@ -158,6 +177,7 @@ Réponds UNIQUEMENT en JSON valide, sans markdown.`;
 Adresse : ${address||'non précisée'}
 ${zoneCtx}
 Source PLU : ${pluAvailable ? 'PDF officiel (' + pluText.length + ' car.)' : 'Règles générales'}
+${cadastreCtx}
 ${pluContext}
 
 QUESTION : "${question}"
