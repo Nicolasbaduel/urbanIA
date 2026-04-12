@@ -43,7 +43,7 @@ function onAddrInput() {
 async function fetchSuggestions(q) {
   try {
     // Appel à notre serveur → qui appelle api-adresse.data.gouv.fr
-    const r = await fetch(`/api/geocode?q=${encodeURIComponent(q)}&limit=5`);
+    const r = await fetch(`/api/geocode/search?q=${encodeURIComponent(q)}&limit=5`);
     const d = await r.json();
     if (d.results?.length) showSug(d.results);
     else hideSug();
@@ -136,10 +136,10 @@ async function launch() {
 // APPELS API VIA NOTRE SERVEUR
 // ════════════════════════════════════════
 
-// Géocodage → /api/geocode
+// Géocodage → /api/geocode/search
 async function geocode(address) {
   try {
-    const r = await fetch(`/api/geocode?q=${encodeURIComponent(address)}&limit=1`);
+    const r = await fetch(`/api/geocode/search?q=${encodeURIComponent(address)}&limit=1`);
     const d = await r.json();
     return d.results?.[0] || null;
   } catch(e) { return null; }
@@ -156,9 +156,9 @@ async function fetchZone(lat, lon) {
   }
 }
 
-// Analyse IA → /api/ai
+// Analyse IA → /api/ai/analyze
 async function callAI(payload) {
-  const r = await fetch('/api/ai', {
+  const r = await fetch('/api/ai/analyze', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(payload)
@@ -392,9 +392,16 @@ function renderAnswer(question, data) {
   const zone    = currentZone?.zone    || '';
   const commune = currentZone?.commune || currentCoords?.city || '';
   const isOfficial = currentZone?.source === 'gpu-apicarto' || currentZone?.source === 'gpu-wfs';
-  const sourceHtml = isOfficial
-    ? `<a href="https://www.geoportail-urbanisme.gouv.fr" target="_blank">GPU officiel</a>`
-    : `Données indicatives · <a href="https://www.geoportail-urbanisme.gouv.fr" target="_blank">Vérifier sur GPU</a>`;
+
+  // Affichage source PLU — PDF officiel ou règles générales
+  let sourceHtml;
+  if (data.plu_available) {
+    sourceHtml = `<span style="color:var(--green);font-weight:500">📄 PLU officiel lu</span> · <a href="${currentZone?.urlfic||'https://www.geoportail-urbanisme.gouv.fr'}" target="_blank">Voir le règlement</a>`;
+  } else if (isOfficial) {
+    sourceHtml = `<a href="https://www.geoportail-urbanisme.gouv.fr" target="_blank">GPU officiel</a> · PDF non disponible`;
+  } else {
+    sourceHtml = `Règles indicatives · <a href="https://www.geoportail-urbanisme.gouv.fr" target="_blank">Vérifier sur GPU</a>`;
+  }
 
   const html = `
     <div class="answer-card">
