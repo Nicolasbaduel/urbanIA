@@ -6,6 +6,8 @@
 <title>UrbanIA — Mon PLU en temps réel</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
 <body>
 
@@ -52,7 +54,7 @@
           class="s-input s-addr"
           placeholder="12 rue de la Paix, Fontainebleau…"
           autocomplete="off"
-          oninput="onAddrInput()" autocomplete="off"
+          oninput="onAddrInput()"
           onkeydown="if(event.key==='Enter') launch()">
         <button class="search-btn" id="launchBtn" onclick="launch()">
           Analyser →
@@ -169,6 +171,6 @@
 
 </main>
 
-<script src="/js/app.js?v=2"></script>
+<script src="/js/app.js"></script>
 </body>
 </html>

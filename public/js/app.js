@@ -44,7 +44,7 @@ function onAddrInput() {
 async function fetchSuggestions(q) {
   try {
     // Appel à notre serveur → qui appelle api-adresse.data.gouv.fr
-    const r = await fetch(`/api/geocode?q=${encodeURIComponent(q)}&limit=5`);
+    const r = await fetch(`/api/geocode/search?q=${encodeURIComponent(q)}&limit=5`);
     const d = await r.json();
     if (d.results?.length) showSug(d.results);
     else hideSug();
@@ -140,10 +140,10 @@ async function launch() {
 // APPELS API VIA NOTRE SERVEUR
 // ════════════════════════════════════════
 
-// Géocodage → /api/geocode
+// Géocodage → /api/geocode/search
 async function geocode(address) {
   try {
-    const r = await fetch(`/api/geocode?q=${encodeURIComponent(address)}&limit=1`);
+    const r = await fetch(`/api/geocode/search?q=${encodeURIComponent(address)}&limit=1`);
     const d = await r.json();
     return d.results?.[0] || null;
   } catch(e) { return null; }
@@ -170,9 +170,9 @@ async function fetchCadastre(lat, lon) {
   } catch(e) { return null; }
 }
 
-// Analyse IA → /api/ai
+// Analyse IA → /api/ai/analyze
 async function callAI(payload) {
-  const r = await fetch('/api/ai', {
+  const r = await fetch('/api/ai/analyze', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify(payload)
@@ -302,25 +302,73 @@ function renderZoneCard(zone, coords) {
 
   document.getElementById('zoneCard').classList.remove('hidden');
   
-  // Afficher les données cadastrales quand disponibles
+  // Afficher carte + données cadastrales
   setTimeout(async () => {
-    if (currentCadastre?.calculs) {
-      const c = currentCadastre.calculs;
-      const p = currentCadastre.parcelle;
-      let cadastreHtml = '';
-      if (p?.found && c.surfaceParcelle > 0) {
-        cadastreHtml = `
-          <div class='cadastre-strip'>
-            <span class='cad-item'><span class='cad-label'>Parcelle</span><strong>${c.surfaceParcelle} m²</strong></span>
-            ${c.empriseExistante > 0 ? `<span class='cad-item'><span class='cad-label'>Bâti existant</span><strong>${c.empriseExistante} m²</strong></span>` : ''}
-            ${c.tauxOccupationActuel !== null ? `<span class='cad-item'><span class='cad-label'>Taux occupé</span><strong>${c.tauxOccupationActuel}%</strong></span>` : ''}
-            <span class='cad-item cad-green'><span class='cad-label'>Constructible est.</span><strong>${c.disponibleSi50pct} m²</strong></span>
-            ${p.section ? `<span class='cad-item'><span class='cad-label'>Réf. cadastre</span><strong>Sec. ${p.section} n°${p.numero}</strong></span>` : ''}
-          </div>`;
-        document.getElementById('zoneRules').insertAdjacentHTML('afterend', cadastreHtml);
-      }
+    if (!currentCadastre) {
+      currentCadastre = await fetchCadastre(coords.lat, coords.lon);
     }
-  }, 2000);
+    renderCadastreCard(currentCadastre, coords);
+  }, 1500);
+}
+
+function renderCadastreCard(cad, coords) {
+  // Supprimer ancienne bande si existante
+  const old = document.getElementById('cadastreBlock');
+  if (old) old.remove();
+
+  const c = cad && cad.calculs;
+  const p = cad && cad.parcelle;
+
+  // Bande de données cadastrales
+  let stripHtml = '';
+  if (c && c.surfaceParcelle > 0) {
+    const items = [
+      { label: 'Parcelle', val: c.surfaceParcelle + ' m²', green: false },
+      ...(c.empriseExistante > 0 ? [{ label: 'Bâti existant', val: c.empriseExistante + ' m²', green: false }] : []),
+      ...(c.tauxOccupationActuel !== null ? [{ label: 'Taux occupé', val: c.tauxOccupationActuel + '%', green: false }] : []),
+      { label: 'Constructible est.', val: c.disponibleSi50pct + ' m²', green: true },
+      ...(p && p.section ? [{ label: 'Réf. cadastre', val: 'Sec. ' + p.section + ' n°' + p.numero, green: false }] : [])
+    ];
+    stripHtml = '<div class="cadastre-strip">' +
+      items.map(i => '<span class="cad-item' + (i.green ? ' cad-green' : '') + '">' +
+        '<span class="cad-label">' + i.label + '</span>' +
+        '<strong>' + i.val + '</strong></span>').join('') +
+      '</div>';
+  }
+
+  // Carte Leaflet
+  const mapHtml = '<div id="cadastreMap" style="height:260px;width:100%;border-top:1px solid var(--border)"></div>';
+
+  // Bloc complet
+  const block = document.createElement('div');
+  block.id = 'cadastreBlock';
+  block.innerHTML = stripHtml + mapHtml;
+  document.getElementById('zoneRules').insertAdjacentElement('afterend', block);
+
+  // Initialiser la carte
+  setTimeout(() => {
+    if (typeof L === 'undefined') return;
+    if (window._leafletMap) { window._leafletMap.remove(); window._leafletMap = null; }
+    const mapEl = document.getElementById('cadastreMap');
+    if (!mapEl) return;
+    const m = L.map('cadastreMap', { zoomControl: true });
+    window._leafletMap = m;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap', maxZoom: 20
+    }).addTo(m);
+    m.setView([coords.lat, coords.lon], 18);
+    // Parcelle
+    if (p && p.geometry && p.geometry.coordinates) {
+      const layer = L.geoJSON(p.geometry, {
+        style: { color: '#c0381a', weight: 2.5, fillColor: '#c0381a', fillOpacity: 0.15 }
+      }).addTo(m);
+      try { m.fitBounds(layer.getBounds(), { padding: [15, 15] }); } catch(e) {}
+    } else {
+      L.circleMarker([coords.lat, coords.lon], {
+        radius: 8, color: '#c0381a', fillColor: '#c0381a', fillOpacity: 0.5
+      }).addTo(m);
+    }
+  }, 300);
 }
 
 function zoneRules(z) {
