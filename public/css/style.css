@@ -884,3 +884,52 @@ body {
   border-top: 1px solid var(--border);
   background: var(--off);
 }
+
+/* ── RISQUES NATURELS ── */
+.risques-block {
+  border-top: 1px solid var(--border);
+  background: var(--off);
+}
+
+.risques-header {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.7rem 1rem 0.4rem;
+}
+
+.risques-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0 1rem 0.7rem;
+}
+
+.risque-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.72rem;
+  color: var(--black);
+}
+
+.risque-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.risques-source {
+  font-size: 0.55rem;
+  color: var(--muted);
+  padding: 0 1rem 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

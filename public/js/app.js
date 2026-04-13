@@ -7,6 +7,8 @@
 // ── STATE ──
 let currentZone    = null;
 let currentCadastre = null;
+  currentRisques  = null;
+let currentRisques  = null;
 let currentCoords  = null;
 let currentAddress = '';
 let suggestTimer   = null;
@@ -133,6 +135,7 @@ async function launch() {
     }
   } catch(e) {}
   currentCadastre = await fetchCadastre(currentCoords.lat, currentCoords.lon, codeInsee);
+  fetchRisques(codeInsee).then(d => { currentRisques = d; });
   pipeState(1, 'done'); pipeState(2, 'active');
 
   // ── ÉTAPE 3 : Afficher la zone ──
@@ -166,7 +169,7 @@ async function geocode(address) {
 // Zone PLU → /api/gpu/zone
 async function fetchZone(lat, lon) {
   try {
-    const r = await fetch(`/api/gpu?lat=${lat}&lon=${lon}`);
+    const r = await fetch(`/api/gpu/zone?lat=${lat}&lon=${lon}`);
     const d = await r.json();
     return d;
   } catch(e) {
@@ -211,7 +214,16 @@ async function fetchCadastre(lat, lon, codeInsee) {
   } catch(e) { return null; }
 }
 
-// Analyse IA → /api/ai
+// Risques naturels -> /api/risques
+async function fetchRisques(codeInsee) {
+  if (!codeInsee) return null;
+  try {
+    const r = await fetch("/api/risques?code_insee=" + codeInsee);
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+// Analyse IA -> /api/ai
 async function callAI(payload) {
   const r = await fetch('/api/ai', {
     method:  'POST',
@@ -649,6 +661,55 @@ function copyCard(btn) {
 }
 
 // ════════════════════════════════════════
+// RISQUES NATURELS
+// ════════════════════════════════════════
+function renderRisquesCard(data) {
+  var old = document.getElementById("risquesBlock");
+  if (old) old.remove();
+  if (!data || !data.found || !data.risques || !data.risques.length) return;
+
+  var icons = {
+    inondation:  "inondation",
+    seisme:      "sismicite",
+    mouvement:   "mouvement terrain",
+    tassement:   "tassement",
+    feu:         "feu de foret",
+    cavite:      "cavites / carrieres",
+    industriel:  "risque industriel",
+    radon:       "radon",
+    avalanche:   "avalanche",
+    volcan:      "volcan",
+    autre:       "risque"
+  };
+
+  var levelColors = { alert: "#c0381a", warn: "#e68c1e", info: "#2563eb" };
+
+  var items = data.risques.map(function(r) {
+    var color = levelColors[r.level] || levelColors.info;
+    return "<div class=\"risque-item\">" +
+      "<span class=\"risque-dot\" style=\"background:" + color + "\"></span>" +
+      "<span class=\"risque-label\">" + r.label + "</span>" +
+      "</div>";
+  }).join("");
+
+  var block = document.createElement("div");
+  block.id = "risquesBlock";
+  block.className = "risques-block";
+  block.innerHTML =
+    "<div class=\"risques-header\">Risques identifies sur la commune</div>" +
+    "<div class=\"risques-grid\">" + items + "</div>" +
+    "<div class=\"risques-source\">Source : Georisques.gouv.fr - GASPAR</div>";
+
+  var cadastreBlock = document.getElementById("cadastreBlock");
+  if (cadastreBlock) {
+    cadastreBlock.insertAdjacentElement("afterend", block);
+  } else {
+    document.getElementById("zoneRules").insertAdjacentElement("afterend", block);
+  }
+}
+
+
+// ════════════════════════════════════════
 // COMPARAISON DE PARCELLES
 // ════════════════════════════════════════
 var compareData = null;
@@ -716,7 +777,7 @@ async function launchCompare() {
     if (!coords2) { btn.textContent = "Adresse introuvable"; btn.disabled = false; return; }
 
     // Zone PLU
-    var zr = await fetch("/api/gpu?lat=" + coords2.lat + "&lon=" + coords2.lon);
+    var zr = await fetch("/api/gpu/zone?lat=" + coords2.lat + "&lon=" + coords2.lon);
     var zone2 = await zr.json();
 
     // Cadastre
