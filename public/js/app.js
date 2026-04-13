@@ -90,7 +90,6 @@ async function launch() {
   if (!address)  { flash('addressInput');  return; }
 
   currentAddress = address;
-  currentCadastre = null;
 
   // UI : désactiver bouton, cacher how-it-works
   document.getElementById('launchBtn').disabled = true;
@@ -117,13 +116,14 @@ async function launch() {
   const zoneData = await fetchZone(currentCoords.lat, currentCoords.lon);
   currentZone = zoneData;
 
-  // Récupération des données cadastrales (en parallèle)
-  fetchCadastre(currentCoords.lat, currentCoords.lon).then(d => { currentCadastre = d; });
+  // Récupération des données cadastrales (attendue)
+  currentCadastre = await fetchCadastre(currentCoords.lat, currentCoords.lon);
   pipeState(1, 'done'); pipeState(2, 'active');
 
   // ── ÉTAPE 3 : Afficher la zone ──
   await sleep(500);
   renderZoneCard(zoneData, currentCoords);
+  renderCadastreCard(currentCadastre, currentCoords);
   renderQuickChips(zoneData);
   pipeState(2, 'done'); pipeState(3, 'active');
 
@@ -301,17 +301,11 @@ function renderZoneCard(zone, coords) {
 
   document.getElementById('zoneCard').classList.remove('hidden');
   
-  // Afficher carte + données cadastrales
-  setTimeout(async () => {
-    if (!currentCadastre) {
-      currentCadastre = await fetchCadastre(coords.lat, coords.lon);
-    }
-    renderCadastreCard(currentCadastre, coords);
-  }, 1500);
+
 }
 
 function renderCadastreCard(cad, coords) {
-  // Supprimer ancienne bande si existante
+  // Supprimer ancien bloc
   const old = document.getElementById('cadastreBlock');
   if (old) old.remove();
 
@@ -323,8 +317,6 @@ function renderCadastreCard(cad, coords) {
   if (c && c.surfaceParcelle > 0) {
     const items = [
       { label: 'Parcelle', val: c.surfaceParcelle + ' m²', green: false },
-      ...(c.empriseExistante > 0 ? [{ label: 'Bâti existant', val: c.empriseExistante + ' m²', green: false }] : []),
-      ...(c.tauxOccupationActuel !== null ? [{ label: 'Taux occupé', val: c.tauxOccupationActuel + '%', green: false }] : []),
       { label: 'Constructible est.', val: c.disponibleSi50pct + ' m²', green: true },
       ...(p && p.section ? [{ label: 'Réf. cadastre', val: 'Sec. ' + p.section + ' n°' + p.numero, green: false }] : [])
     ];
@@ -336,7 +328,7 @@ function renderCadastreCard(cad, coords) {
   }
 
   // Carte Leaflet
-  const mapHtml = '<div id="cadastreMap" style="height:260px;width:100%;border-top:1px solid var(--border)"></div>';
+  const mapHtml = '<div id="cadastreMap" style="height:280px;width:100%;border-top:1px solid var(--border)"></div>';
 
   // Bloc complet
   const block = document.createElement('div');
@@ -344,30 +336,61 @@ function renderCadastreCard(cad, coords) {
   block.innerHTML = stripHtml + mapHtml;
   document.getElementById('zoneRules').insertAdjacentElement('afterend', block);
 
-  // Initialiser la carte
-  setTimeout(() => {
-    if (typeof L === 'undefined') return;
-    if (window._leafletMap) { window._leafletMap.remove(); window._leafletMap = null; }
-    const mapEl = document.getElementById('cadastreMap');
-    if (!mapEl) return;
-    const m = L.map('cadastreMap', { zoomControl: true });
-    window._leafletMap = m;
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap', maxZoom: 20
+  // Initialiser la carte immédiatement
+  if (typeof L === 'undefined') return;
+  if (window._leafletMap) { window._leafletMap.remove(); window._leafletMap = null; }
+
+  const m = L.map('cadastreMap', { zoomControl: true });
+  window._leafletMap = m;
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 20
+  }).addTo(m);
+
+  m.setView([coords.lat, coords.lon], 18);
+
+  // Si la géométrie est disponible depuis notre API, l'afficher
+  if (p && p.geometry && p.geometry.coordinates) {
+    const layer = L.geoJSON(p.geometry, {
+      style: { color: '#c0381a', weight: 2.5, fillColor: '#c0381a', fillOpacity: 0.15 }
     }).addTo(m);
-    m.setView([coords.lat, coords.lon], 18);
-    // Parcelle
-    if (p && p.geometry && p.geometry.coordinates) {
-      const layer = L.geoJSON(p.geometry, {
-        style: { color: '#c0381a', weight: 2.5, fillColor: '#c0381a', fillOpacity: 0.15 }
-      }).addTo(m);
-      try { m.fitBounds(layer.getBounds(), { padding: [15, 15] }); } catch(e) {}
-    } else {
-      L.circleMarker([coords.lat, coords.lon], {
-        radius: 8, color: '#c0381a', fillColor: '#c0381a', fillOpacity: 0.5
-      }).addTo(m);
-    }
-  }, 300);
+    try { m.fitBounds(layer.getBounds(), { padding: [20, 20] }); } catch(e) {}
+  } else {
+    // Fallback : récupérer la géométrie directement depuis APICarto (public, pas de CORS)
+    fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon=' + coords.lon + '&lat=' + coords.lat + '&_limit=1')
+      .then(r => r.json())
+      .then(data => {
+        if (data.features && data.features.length > 0) {
+          const feat = data.features[0];
+          const props = feat.properties;
+          // Mettre à jour la bande avec les vraies données
+          const surface = props.contenance || 0;
+          if (surface > 0) {
+            const strip = document.querySelector('.cadastre-strip');
+            if (strip) {
+              const constructible = Math.round(surface * 0.5);
+              strip.innerHTML =
+                '<span class="cad-item"><span class="cad-label">Parcelle</span><strong>' + surface + ' m²</strong></span>' +
+                '<span class="cad-item cad-green"><span class="cad-label">Constructible est.</span><strong>' + constructible + ' m²</strong></span>' +
+                (props.section ? '<span class="cad-item"><span class="cad-label">Réf. cadastre</span><strong>Sec. ' + props.section + ' n°' + props.numero + '</strong></span>' : '');
+            }
+          }
+          // Afficher le polygone
+          if (feat.geometry) {
+            const layer = L.geoJSON(feat.geometry, {
+              style: { color: '#c0381a', weight: 2.5, fillColor: '#c0381a', fillOpacity: 0.15 }
+            }).addTo(m);
+            try { m.fitBounds(layer.getBounds(), { padding: [20, 20] }); } catch(e) {}
+          }
+        }
+      })
+      .catch(() => {
+        // Simple marqueur si tout échoue
+        L.circleMarker([coords.lat, coords.lon], {
+          radius: 10, color: '#c0381a', fillColor: '#c0381a', fillOpacity: 0.5
+        }).addTo(m);
+      });
+  }
 }
 
 function zoneRules(z) {
