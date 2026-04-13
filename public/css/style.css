@@ -701,3 +701,45 @@ body {
 .leaflet-control-attribution {
   font-size: 9px !important;
 }
+
+/* ── RÈGLE DÉTAIL ── */
+.rule-cell {
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+}
+.rule-cell:hover {
+  background: var(--off);
+}
+.rule-detail {
+  display: none;
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.5;
+  padding: 0.5rem 0.75rem 0.6rem;
+  border-top: 1px solid var(--border);
+  background: #fafafa;
+  text-align: left;
+}
+.rule-cell.rule-open .rule-detail {
+  display: block;
+}
+.rule-cell.rule-open {
+  background: var(--off);
+}
+
+/* ── LABEL PARCELLE SUR CARTE ── */
+.parcel-label {
+  background: rgba(192, 56, 26, 0.85) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  color: white !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  padding: 3px 7px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
+}
+.parcel-label::before {
+  display: none !important;
+}
