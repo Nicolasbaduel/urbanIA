@@ -672,10 +672,10 @@ function exportCard(btn, question) {
     '',
     '─'.repeat(40),
     `Généré par UrbanIA · ${new Date().toLocaleDateString('fr-FR')}`,
-    'Source : Géoportail de l\'Urbanisme (GPU) · api-adresse.data.gouv.fr',
+    'Source : Géoportail de l'Urbanisme (GPU) · api-adresse.data.gouv.fr',
     '',
     '⚠️ Ces informations sont indicatives. Vérifiez toujours auprès du service',
-    '   d\'urbanisme de votre mairie avant tout dépôt de permis ou déclaration.'
+    '   d'urbanisme de votre mairie avant tout dépôt de permis ou déclaration.'
   ].join('\n');
 
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
