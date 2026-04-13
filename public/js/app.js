@@ -168,7 +168,7 @@ async function geocode(address) {
 // Zone PLU → /api/gpu/zone
 async function fetchZone(lat, lon) {
   try {
-    const r = await fetch(`/api/gpu/zone?lat=${lat}&lon=${lon}`);
+    const r = await fetch(`/api/gpu?lat=${lat}&lon=${lon}`);
     const d = await r.json();
     return d;
   } catch(e) {
@@ -394,7 +394,7 @@ function renderCadastreCard(cad, coords) {
   if (typeof L === 'undefined') return;
   if (window._leafletMap) { window._leafletMap.remove(); window._leafletMap = null; }
 
-  const m = L.map('cadastreMap', { zoomControl: true });
+  const m = L.map('cadastreMap', { zoomControl: true, maxZoom: 19 });
   window._leafletMap = m;
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -776,7 +776,7 @@ async function launchCompare() {
     if (!coords2) { btn.textContent = "Adresse introuvable"; btn.disabled = false; return; }
 
     // Zone PLU
-    var zr = await fetch("/api/gpu/zone?lat=" + coords2.lat + "&lon=" + coords2.lon);
+    var zr = await fetch("/api/gpu?lat=" + coords2.lat + "&lon=" + coords2.lon);
     var zone2 = await zr.json();
 
     // Cadastre
