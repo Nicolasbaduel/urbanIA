@@ -120,7 +120,7 @@ async function launch() {
   // Code INSEE depuis le geocodage initial
   const codeInsee = currentCoords.citycode || (currentZone && currentZone.codeInsee) || null;
   currentCadastre = await fetchCadastre(currentCoords.lat, currentCoords.lon, codeInsee);
-  fetchRisques(codeInsee).then(d => { currentRisques = d; });
+  fetchRisques(codeInsee).then(d => { currentRisques = d; setTimeout(function(){ renderRisquesCard(currentRisques); }, 500); });
   pipeState(1, 'done'); pipeState(2, 'active');
 
   // ── ÉTAPE 3 : Afficher la zone ──
