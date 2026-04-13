@@ -7,7 +7,6 @@
 // ── STATE ──
 let currentZone    = null;
 let currentCadastre = null;
-  currentRisques  = null;
 let currentRisques  = null;
 let currentCoords  = null;
 let currentAddress = '';
