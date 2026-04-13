@@ -957,3 +957,69 @@ body {
 }
 
 .rule-cell.rule-open .rule-svg { display: flex; }
+
+/* ── PUB CONTEXTUELLE ── */
+.contextual-ad {
+  border: 1px solid var(--border);
+  background: var(--off);
+  margin-top: 0.5rem;
+}
+
+.ad-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.6rem 1rem 0.3rem;
+}
+
+.ad-links {
+  display: flex;
+  flex-direction: column;
+}
+
+.ad-link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 1rem;
+  border-top: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--black);
+  transition: background 0.15s;
+}
+
+.ad-link:hover { background: white; }
+
+.ad-link-icon { font-size: 1rem; flex-shrink: 0; }
+
+.ad-link-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.ad-link-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--black);
+}
+
+.ad-link-sub {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.ad-link-arrow {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.ad-footer {
+  font-size: 0.58rem;
+  color: var(--muted);
+  padding: 0.4rem 1rem;
+  border-top: 1px solid var(--border);
+  text-align: right;
+}

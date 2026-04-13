@@ -16,6 +16,7 @@ let suggestTimer   = null;
 // INIT — vérification serveur
 // ════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
+  renderHistoryCount();
   try {
     const r = await fetch('/api/health');
     const d = await r.json();
@@ -120,7 +121,7 @@ async function launch() {
   // Code INSEE depuis le geocodage initial
   const codeInsee = currentCoords.citycode || (currentZone && currentZone.codeInsee) || null;
   currentCadastre = await fetchCadastre(currentCoords.lat, currentCoords.lon, codeInsee);
-  fetchRisques(codeInsee).then(d => { currentRisques = d; setTimeout(function(){ renderRisquesCard(currentRisques); }, 500); });
+  fetchRisques(codeInsee).then(d => { currentRisques = d; });
   pipeState(1, 'done'); pipeState(2, 'active');
 
   // ── ÉTAPE 3 : Afficher la zone ──
@@ -596,6 +597,55 @@ function renderAnswer(question, data) {
     </div>`;
 
   document.getElementById('answers').insertAdjacentHTML('afterbegin', html);
+  saveToHistory(currentAddress, question, data.verdict || '', currentZone && currentZone.zone ? currentZone.zone : '');
+
+  // Pub contextuelle immobiliere (version gratuite)
+  renderContextualAd(currentZone && currentZone.commune ? currentZone.commune : (currentCoords ? currentCoords.city : ''), currentCoords);
+}
+
+function renderContextualAd(ville, coords) {
+  var old = document.getElementById('contextualAd');
+  if (old) old.remove();
+
+  var villeEncode = encodeURIComponent(ville || '');
+  var selogerUrl  = 'https://www.seloger.com/annonces/achat/ville-' + villeEncode.toLowerCase().replace(/%20/g,'-') + '.htm';
+  var lbcUrl      = 'https://www.leboncoin.fr/recherche?category=9&locations=' + villeEncode;
+  var gpuUrl      = coords ? 'https://www.geoportail-urbanisme.gouv.fr/map/#tile=1&lon=' + coords.lon + '&lat=' + coords.lat + '&zoom=17' : '#';
+
+  var ad = document.createElement('div');
+  ad.id = 'contextualAd';
+  ad.className = 'contextual-ad';
+  ad.innerHTML =
+    '<div class="ad-label">Liens utiles</div>' +
+    '<div class="ad-links">' +
+      '<a href="' + selogerUrl + '" target="_blank" rel="noopener" class="ad-link">' +
+        '<span class="ad-link-icon">🏠</span>' +
+        '<span class="ad-link-body">' +
+          '<span class="ad-link-title">Biens a vendre</span>' +
+          '<span class="ad-link-sub">' + (ville || 'dans cette ville') + ' · SeLoger</span>' +
+        '</span>' +
+        '<span class="ad-link-arrow">→</span>' +
+      '</a>' +
+      '<a href="' + lbcUrl + '" target="_blank" rel="noopener" class="ad-link">' +
+        '<span class="ad-link-icon">🔍</span>' +
+        '<span class="ad-link-body">' +
+          '<span class="ad-link-title">Annonces immobilieres</span>' +
+          '<span class="ad-link-sub">' + (ville || 'dans cette ville') + ' · Leboncoin</span>' +
+        '</span>' +
+        '<span class="ad-link-arrow">→</span>' +
+      '</a>' +
+      '<a href="' + gpuUrl + '" target="_blank" rel="noopener" class="ad-link">' +
+        '<span class="ad-link-icon">🗺</span>' +
+        '<span class="ad-link-body">' +
+          '<span class="ad-link-title">Voir le PLU complet</span>' +
+          '<span class="ad-link-sub">Geoportail de l Urbanisme officiel</span>' +
+        '</span>' +
+        '<span class="ad-link-arrow">→</span>' +
+      '</a>' +
+    '</div>' +
+    '<div class="ad-footer">Liens partenaires · Version gratuite</div>';
+
+  document.getElementById('answers').insertAdjacentElement('afterend', ad);
 }
 
 function renderAnswerError(question, msg) {
@@ -691,6 +741,110 @@ function renderRisquesCard(data) {
   } else {
     document.getElementById("zoneRules").insertAdjacentElement("afterend", block);
   }
+}
+
+
+// ════════════════════════════════════════
+// HISTORIQUE DES ANALYSES
+// ════════════════════════════════════════
+function saveToHistory(address, question, verdict, zone) {
+  try {
+    var history = JSON.parse(localStorage.getItem('urbaniaHistory') || '[]');
+    history.unshift({
+      id:       Date.now(),
+      date:     new Date().toLocaleDateString('fr-FR'),
+      address:  address,
+      question: question,
+      verdict:  verdict,
+      zone:     zone,
+      commune:  currentZone && currentZone.commune ? currentZone.commune : ''
+    });
+    // Garder max 20 analyses
+    history = history.slice(0, 20);
+    localStorage.setItem('urbaniaHistory', JSON.stringify(history));
+    renderHistoryCount();
+  } catch(e) {}
+}
+
+function renderHistoryCount() {
+  try {
+    var history = JSON.parse(localStorage.getItem('urbaniaHistory') || '[]');
+    var btn = document.getElementById('historyBtn');
+    if (btn && history.length > 0) {
+      btn.textContent = '📋 Historique (' + history.length + ')';
+    }
+  } catch(e) {}
+}
+
+function showHistory() {
+  try {
+    var history = JSON.parse(localStorage.getItem('urbaniaHistory') || '[]');
+    var old = document.getElementById('historyModal');
+    if (old) old.remove();
+
+    if (history.length === 0) {
+      alert('Aucune analyse dans l historique.');
+      return;
+    }
+
+    var rows = history.map(function(h) {
+      var verdictClass = h.verdict && h.verdict.includes('OUI') ? 'color:#22a855' :
+                         h.verdict && h.verdict.includes('NON') ? 'color:#c0381a' : 'color:#e68c1e';
+      return '<tr onclick="loadFromHistory('' + h.id + '')" style="cursor:pointer">' +
+        '<td style="padding:0.6rem 1rem;font-size:0.75rem;color:#666">' + h.date + '</td>' +
+        '<td style="padding:0.6rem 1rem;font-size:0.8rem;font-weight:500">' + h.address + '</td>' +
+        '<td style="padding:0.6rem 1rem;font-size:0.75rem;color:#666">' + h.question + '</td>' +
+        '<td style="padding:0.6rem 1rem;font-size:0.72rem;font-weight:600;' + verdictClass + '">' + (h.verdict || '—') + '</td>' +
+        '</tr>';
+    }).join('');
+
+    var modal = document.createElement('div');
+    modal.id = 'historyModal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML =
+      '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.5)" onclick="document.getElementById('historyModal').remove()"></div>' +
+      '<div style="position:relative;background:white;width:90%;max-width:700px;max-height:80vh;overflow:auto;z-index:1001">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;border-bottom:1px solid #e2e0db">' +
+          '<span style="font-weight:600;font-size:0.9rem">Historique des analyses</span>' +
+          '<button onclick="document.getElementById('historyModal').remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#666">✕</button>' +
+        '</div>' +
+        '<table style="width:100%;border-collapse:collapse">' +
+          '<thead><tr style="background:#f5f4f1">' +
+            '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Date</th>' +
+            '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Adresse</th>' +
+            '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Question</th>' +
+            '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Verdict</th>' +
+          '</tr></thead>' +
+          '<tbody style="divide-y">' + rows + '</tbody>' +
+        '</table>' +
+        '<div style="padding:0.8rem 1.5rem;border-top:1px solid #e2e0db;display:flex;justify-content:space-between;align-items:center">' +
+          '<span style="font-size:0.72rem;color:#666">' + history.length + ' analyse(s) sauvegardee(s)</span>' +
+          '<button onclick="clearHistory()" style="font-size:0.72rem;color:#c0381a;background:none;border:none;cursor:pointer">Effacer l historique</button>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(modal);
+  } catch(e) {}
+}
+
+function clearHistory() {
+  if (confirm('Effacer tout l historique ?')) {
+    localStorage.removeItem('urbaniaHistory');
+    document.getElementById('historyModal').remove();
+    renderHistoryCount();
+  }
+}
+
+function loadFromHistory(id) {
+  try {
+    var history = JSON.parse(localStorage.getItem('urbaniaHistory') || '[]');
+    var item = history.find(function(h) { return h.id == id; });
+    if (!item) return;
+    document.getElementById('historyModal').remove();
+    document.getElementById('questionInput').value = item.question;
+    document.getElementById('addressInput').value  = item.address;
+    document.getElementById('addressInput').focus();
+  } catch(e) {}
 }
 
 
