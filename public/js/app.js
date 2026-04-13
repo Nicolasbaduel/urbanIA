@@ -504,6 +504,50 @@ function toggleRuleDetail(el) {
   el.classList.toggle('rule-open');
 }
 
+function zoneRules(z) {
+  z = (z || '').toUpperCase();
+  if (z.startsWith('UA') || z === 'UC' || z === 'U')
+    return [
+      { val: '10-15m', key: 'Hauteur max', note: 'A l egout du toit - R+3 a R+4', detail: "Mesuree depuis le sol naturel jusqu a l egout du toit (gouttiere). Le faitage peut depasser de 1,5m." },
+      { val: '0m',     key: 'Recul voirie', note: 'Alignement obligatoire', detail: "La facade doit etre implantee a l alignement de la voie publique, sauf indication contraire du PLU." },
+      { val: '20%',    key: 'Pleine terre', note: 'Surface jardin min.', detail: "Au moins 20% de la parcelle doit rester en pleine terre (non impermeabilisee) pour absorber les eaux de pluie." },
+      { val: '0.8-1.5',key: 'COS', note: 'Coeff. occupation des sols', detail: "Surface de plancher constructible = COS x surface parcelle. Ex: parcelle 300m2 x COS 1.0 = 300m2 constructibles." },
+    ];
+  if (z.startsWith('UB') || z.startsWith('UD'))
+    return [
+      { val: '7–9m',   key: 'Hauteur max', note: 'À l'égout du toit · R+1 à R+2', detail: "Mesurée depuis le sol naturel jusqu"à l'égout du toit. Correspond à une maison + 1 ou 2 étages.' },
+      { val: '5m',     key: 'Recul voirie', note: "Distance min. à la rue", detail: "La façade principale doit être implantée à minimum 5m de l"alignement de la voie publique.' },
+      { val: '30%',    key: 'Pleine terre', note: 'Surface jardin min.', detail: "Au moins 30% de la parcelle doit rester en pleine terre non imperméabilisée." },
+      { val: '0.3–0.6',key: 'COS', note: 'Coeff. d'occupation des sols', detail: "Surface de plancher constructible = COS × surface parcelle. Ex: parcelle 500m² × COS 0.4 = 200m² constructibles." },
+    ];
+  if (z.startsWith('AU') || z.startsWith('1AU'))
+    return [
+      { val: '7–10m',  key: 'Hauteur max', note: 'À l'égout du toit · variable', detail: "Zone à urbaniser : hauteur définie par l"OAP (Orientation d'Aménagement et de Programmation) de la commune.' },
+      { val: '5m',     key: 'Recul voirie', note: "Distance min. à la rue", detail: "Recul minimum de 5m depuis la voie publique, sauf prescriptions spéciales de l"OAP.' },
+      { val: '25%',    key: 'Pleine terre', note: 'Surface jardin min.', detail: "Minimum 25% de la parcelle en pleine terre. Souvent plus élevé dans les OAP récents." },
+      { val: 'OAP',    key: 'Orientation', note: 'Voir document OAP', detail: "Zone soumise à une Orientation d"Aménagement et de Programmation. Consulter la mairie pour les prescriptions exactes.' },
+    ];
+  if (z.startsWith('N'))
+    return [
+      { val: '—',      key: 'Construction', note: "Très limitée", detail: "Zone naturelle protégée. Seules quelques constructions légères liées à la gestion du site sont autorisées." },
+      { val: '10m',    key: 'Recul voirie', note: "Distance min. à la rue", detail: "Recul minimum de 10m depuis la voie publique pour toute construction autorisée." },
+      { val: '90%',    key: 'Pleine terre', note: 'Zone naturelle', detail: "Au minimum 90% de la parcelle doit rester en pleine terre. Imperméabilisation quasi-interdite." },
+      { val: '~0',     key: 'COS', note: 'Quasi nul', detail: "Coefficient d"occupation des sols proche de zéro. La construction neuve est quasi-interdite.' },
+    ];
+  if (z.startsWith('A'))
+    return [
+      { val: '—',      key: 'Construction', note: 'Usage agricole uniquement', detail: "Zone agricole protégée. Seules les constructions liées à l"exploitation agricole sont autorisées.' },
+      { val: '15m',    key: 'Recul voirie', note: "Distance min. à la rue", detail: "Recul minimum de 15m depuis la voie publique pour tout bâtiment agricole." },
+      { val: '85%',    key: 'Pleine terre', note: 'Zone agricole', detail: "Au minimum 85% de la parcelle doit rester en pleine terre non imperméabilisée." },
+      { val: '0.05',   key: 'COS', note: "Très limité", detail: "COS très faible réservé aux bâtiments agricoles indispensables à l"exploitation.' },
+    ];
+  return [
+    { val: '9–12m',  key: 'Hauteur max', note: 'À l'égout du toit · variable', detail: "Mesurée depuis le sol naturel jusqu"à l'égout du toit (gouttière). Le faîtage peut dépasser de 1 à 1,5m supplémentaire.' },
+    { val: '5m',     key: 'Recul voirie', note: "Distance min. à la rue", detail: "Distance minimale entre la façade et l"alignement de la voie publique. Variable selon les articles du PLU.' },
+    { val: '25%',    key: 'Pleine terre', note: 'Surface jardin min.', detail: "Pourcentage minimum de la parcelle devant rester en pleine terre non imperméabilisée." },
+    { val: 'Var.',   key: 'COS', note: "Voir règlement PLU", detail: "Le Coefficient d"Occupation des Sols détermine la surface de plancher maximum constructible sur la parcelle.' },
+  ];
+}
 
 // ════════════════════════════════════════
 // RENDU : ANSWER CARD
@@ -598,6 +642,7 @@ function renderAnswer(question, data) {
         <div class="answer-btns">
           <button class="ans-btn" onclick="copyCard(this)">📋 Copier</button>
           <button class="ans-btn" onclick="exportCard(this, '${esc(question)}')">📄 Exporter</button>
+          <button class="ans-btn ans-btn-compare" onclick="startCompare(this)">⚖️ Comparer</button>
         </div>
       </div>
     </div>`;
@@ -651,6 +696,149 @@ function copyCard(btn) {
     setTimeout(() => btn.textContent = '📋 Copier', 2000);
   });
 }
+
+// ════════════════════════════════════════
+// COMPARAISON DE PARCELLES
+// ════════════════════════════════════════
+var compareData = null;
+
+function startCompare(btn) {
+  var card = btn.closest(".answer-card");
+
+  // Sauvegarder les donnees de la premiere parcelle
+  compareData = {
+    address:      currentAddress,
+    zone:         currentZone,
+    coords:       currentCoords,
+    cadastre:     currentCadastre,
+    verdict:      card.querySelector(".verdict") ? card.querySelector(".verdict").textContent : "",
+    resume:       card.querySelector(".answer-resume") ? card.querySelector(".answer-resume").textContent : "",
+    budget:       card.querySelector(".budget-amount, .fourchette") ? card.querySelector(".budget-amount, .fourchette").textContent : "",
+    question:     card.querySelector(".answer-q-text") ? card.querySelector(".answer-q-text").textContent : ""
+  };
+
+  // Afficher le modal de comparaison
+  var modal = document.getElementById("compareModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "compareModal";
+    modal.innerHTML = [
+      "<div class=\"compare-overlay\" onclick=\"closeCompare()\"></div>",
+      "<div class=\"compare-panel\">",
+      "  <div class=\"compare-header\">",
+      "    <span>Comparer avec une autre parcelle</span>",
+      "    <button onclick=\"closeCompare()\">✕</button>",
+      "  </div>",
+      "  <div class=\"compare-body\">",
+      "    <p class=\"compare-hint\">Entrez la deuxieme adresse a comparer :</p>",
+      "    <input id=\"compareAddr\" type=\"text\" placeholder=\"Ex : 13 rue de la Paix 75001 Paris\" class=\"compare-input\"/>",
+      "    <input id=\"compareQ\" type=\"text\" placeholder=\"Meme question ou autre ?\" class=\"compare-input\" value=\"" + (compareData.question || "") + "\"/>",
+      "    <button class=\"compare-launch-btn\" onclick=\"launchCompare()\">Analyser et comparer →</button>",
+      "  </div>",
+      "</div>"
+    ].join("");
+    document.body.appendChild(modal);
+  }
+  modal.style.display = "flex";
+  setTimeout(function() { document.getElementById("compareAddr").focus(); }, 100);
+}
+
+function closeCompare() {
+  var modal = document.getElementById("compareModal");
+  if (modal) modal.style.display = "none";
+}
+
+async function launchCompare() {
+  var addr2 = document.getElementById("compareAddr").value.trim();
+  var q2    = document.getElementById("compareQ").value.trim();
+  if (!addr2) { document.getElementById("compareAddr").style.outline = "2px solid red"; return; }
+
+  var btn = document.querySelector(".compare-launch-btn");
+  btn.textContent = "Analyse en cours...";
+  btn.disabled = true;
+
+  try {
+    // Geocoder la 2eme adresse
+    var r = await fetch("/api/geocode?q=" + encodeURIComponent(addr2) + "&limit=1");
+    var d = await r.json();
+    var coords2 = d.results && d.results[0] ? d.results[0] : null;
+    if (!coords2) { btn.textContent = "Adresse introuvable"; btn.disabled = false; return; }
+
+    // Zone PLU
+    var zr = await fetch("/api/gpu/zone?lat=" + coords2.lat + "&lon=" + coords2.lon);
+    var zone2 = await zr.json();
+
+    // Cadastre
+    var codeInsee2 = null;
+    try {
+      var banR = await fetch("https://api-adresse.data.gouv.fr/search/?q=" + encodeURIComponent(addr2) + "&limit=1");
+      var banD = await banR.json();
+      if (banD.features && banD.features[0]) codeInsee2 = banD.features[0].properties.citycode;
+    } catch(e) {}
+    var cad2 = await fetchCadastre(coords2.lat, coords2.lon, codeInsee2);
+
+    closeCompare();
+    renderCompare(addr2, zone2, coords2, cad2, q2);
+
+  } catch(e) {
+    btn.textContent = "Erreur - reessayez";
+    btn.disabled = false;
+  }
+}
+
+function renderCompare(addr2, zone2, coords2, cad2, question) {
+  // Supprimer ancien bloc comparaison
+  var old = document.getElementById("compareBlock");
+  if (old) old.remove();
+
+  var d1 = compareData;
+  var c1 = d1.cadastre && d1.cadastre.calculs ? d1.cadastre.calculs : null;
+  var p1 = d1.cadastre && d1.cadastre.parcelle ? d1.cadastre.parcelle : null;
+  var c2 = cad2 && cad2.calculs ? cad2.calculs : null;
+  var p2 = cad2 && cad2.parcelle ? cad2.parcelle : null;
+  var z1 = d1.zone;
+  var z2 = zone2;
+
+  function row(label, v1, v2, highlight) {
+    var cls1 = highlight && v1 > v2 ? " cmp-winner" : "";
+    var cls2 = highlight && v2 > v1 ? " cmp-winner" : "";
+    return "<tr><td class=\"cmp-label\">" + label + "</td>" +
+      "<td class=\"cmp-val" + cls1 + "\">" + (v1 || "—") + "</td>" +
+      "<td class=\"cmp-val" + cls2 + "\">" + (v2 || "—") + "</td></tr>";
+  }
+
+  var html = [
+    "<div id=\"compareBlock\" class=\"compare-result\">",
+    "  <div class=\"cmp-title\">Comparaison de parcelles</div>",
+    "  <table class=\"cmp-table\">",
+    "    <thead>",
+    "      <tr>",
+    "        <th></th>",
+    "        <th class=\"cmp-head\">" + (d1.address || "Parcelle 1") + "</th>",
+    "        <th class=\"cmp-head\">" + addr2 + "</th>",
+    "      </tr>",
+    "    </thead>",
+    "    <tbody>",
+    row("Zone PLU", z1 ? z1.zone || "—" : "—", z2 ? z2.zone || "—" : "—", false),
+    row("Commune", z1 ? z1.commune || "—" : "—", z2 ? z2.commune || "—" : "—", false),
+    row("Surface parcelle", c1 ? c1.surfaceParcelle + " m2" : "—", c2 ? c2.surfaceParcelle + " m2" : "—", false),
+    row("Constructible est.", c1 ? c1.disponibleSi50pct + " m2" : "—", c2 ? c2.disponibleSi50pct + " m2" : "—", false),
+    row("Ref. cadastrale", p1 && p1.section ? "Sec. " + p1.section + " n" + p1.numero : "—", p2 && p2.section ? "Sec. " + p2.section + " n" + p2.numero : "—", false),
+    row("Hauteur max", z1 ? "9-12m" : "—", z2 ? "9-12m" : "—", false),
+    row("Verdict IA", d1.verdict || "—", "Non analyse", false),
+    row("Budget est.", d1.budget || "—", "—", false),
+    "    </tbody>",
+    "  </table>",
+    "  <div class=\"cmp-footer\">",
+    "    <button class=\"ans-btn\" onclick=\"document.getElementById('compareBlock').remove()\">Fermer</button>",
+    "  </div>",
+    "</div>"
+  ].join("");
+
+  document.getElementById("answers").insertAdjacentHTML("afterbegin", html);
+  document.getElementById("compareBlock").scrollIntoView({ behavior: "smooth" });
+}
+
 
 function exportCard(btn, question) {
   const card    = btn.closest('.answer-card');

@@ -743,3 +743,144 @@ body {
 .parcel-label::before {
   display: none !important;
 }
+
+/* ── COMPARAISON ── */
+.ans-btn-compare { background: var(--black); color: white; }
+.ans-btn-compare:hover { background: #333; }
+
+#compareModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.compare-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+.compare-panel {
+  position: relative;
+  background: white;
+  border-radius: 4px;
+  width: 90%;
+  max-width: 480px;
+  z-index: 1001;
+  overflow: hidden;
+}
+
+.compare-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.compare-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.compare-body { padding: 1.2rem; }
+
+.compare-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.8rem;
+}
+
+.compare-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.6rem;
+  border-radius: 2px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.compare-input:focus { outline: 2px solid var(--black); }
+
+.compare-launch-btn {
+  width: 100%;
+  background: var(--black);
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 2px;
+  font-family: inherit;
+}
+
+.compare-launch-btn:hover { background: #333; }
+.compare-launch-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
+/* Tableau comparaison */
+.compare-result {
+  background: white;
+  border: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.cmp-title {
+  padding: 0.8rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.cmp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.cmp-table th, .cmp-table td {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.cmp-head {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--black);
+  background: var(--off);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmp-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  width: 35%;
+}
+
+.cmp-val { font-weight: 400; color: var(--black); }
+.cmp-winner { color: #22a855; font-weight: 600; }
+
+.cmp-footer {
+  padding: 0.8rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--off);
+}
