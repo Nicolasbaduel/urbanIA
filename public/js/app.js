@@ -118,19 +118,12 @@ async function launch() {
 
   // Récupération des données cadastrales (attendue)
   // Récupérer le code INSEE depuis l'API adresse (plus fiable que le postcode)
+  // Récupérer le citycode exact depuis l'API BAN
   let codeInsee = null;
   try {
-    const geoR = await fetch('/api/geocode?q=' + encodeURIComponent(currentAddress) + '&limit=1');
-    const geoD = await geoR.json();
-    if (geoD.results && geoD.results[0] && geoD.results[0].postcode) {
-      // Construire code INSEE depuis postcode + city (approximation)
-      // On utilise l'API ban pour avoir le code INSEE exact
-      const banR = await fetch('https://api-adresse.data.gouv.fr/search/?q=' + encodeURIComponent(currentAddress) + '&limit=1');
-      const banD = await banR.json();
-      if (banD.features && banD.features[0]) {
-        codeInsee = banD.features[0].properties.citycode;
-      }
-    }
+    const banR = await fetch('https://api-adresse.data.gouv.fr/search/?q=' + encodeURIComponent(currentAddress) + '&limit=1');
+    const banD = await banR.json();
+    if (banD.features && banD.features[0]) codeInsee = banD.features[0].properties.citycode;
   } catch(e) {}
   currentCadastre = await fetchCadastre(currentCoords.lat, currentCoords.lon, codeInsee);
   pipeState(1, 'done'); pipeState(2, 'active');
