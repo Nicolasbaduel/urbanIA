@@ -117,22 +117,8 @@ async function launch() {
   const zoneData = await fetchZone(currentCoords.lat, currentCoords.lon);
   currentZone = zoneData;
 
-  // Récupération des données cadastrales (attendue)
-  // Récupérer le code INSEE depuis l'API adresse (plus fiable que le postcode)
-  let codeInsee = null;
-  try {
-    const geoR = await fetch('/api/geocode?q=' + encodeURIComponent(currentAddress) + '&limit=1');
-    const geoD = await geoR.json();
-    if (geoD.results && geoD.results[0] && geoD.results[0].postcode) {
-      // Construire code INSEE depuis postcode + city (approximation)
-      // On utilise l'API ban pour avoir le code INSEE exact
-      const banR = await fetch('https://api-adresse.data.gouv.fr/search/?q=' + encodeURIComponent(currentAddress) + '&limit=1');
-      const banD = await banR.json();
-      if (banD.features && banD.features[0]) {
-        codeInsee = banD.features[0].properties.citycode;
-      }
-    }
-  } catch(e) {}
+  // Code INSEE depuis le geocodage initial
+  const codeInsee = currentCoords.citycode || (currentZone && currentZone.codeInsee) || null;
   currentCadastre = await fetchCadastre(currentCoords.lat, currentCoords.lon, codeInsee);
   fetchRisques(codeInsee).then(d => { currentRisques = d; });
   pipeState(1, 'done'); pipeState(2, 'active');
@@ -140,9 +126,7 @@ async function launch() {
   // ── ÉTAPE 3 : Afficher la zone ──
   await sleep(500);
   renderZoneCard(zoneData, currentCoords);
-  await sleep(2500);
   renderCadastreCard(currentCadastre, currentCoords);
-  renderRisquesCard(currentRisques);
   renderQuickChips(zoneData);
   pipeState(2, 'done'); pipeState(3, 'active');
 
@@ -170,7 +154,7 @@ async function geocode(address) {
 // Zone PLU → /api/gpu/zone
 async function fetchZone(lat, lon) {
   try {
-    const r = await fetch(`/api/gpu?lat=${lat}&lon=${lon}`);
+    const r = await fetch(`/api/gpu/zone?lat=${lat}&lon=${lon}`);
     const d = await r.json();
     return d;
   } catch(e) {
@@ -396,7 +380,7 @@ function renderCadastreCard(cad, coords) {
   if (typeof L === 'undefined') return;
   if (window._leafletMap) { window._leafletMap.remove(); window._leafletMap = null; }
 
-  const m = L.map('cadastreMap', { zoomControl: true, maxZoom: 19 });
+  const m = L.map('cadastreMap', { zoomControl: true });
   window._leafletMap = m;
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -778,7 +762,7 @@ async function launchCompare() {
     if (!coords2) { btn.textContent = "Adresse introuvable"; btn.disabled = false; return; }
 
     // Zone PLU
-    var zr = await fetch("/api/gpu?lat=" + coords2.lat + "&lon=" + coords2.lon);
+    var zr = await fetch("/api/gpu/zone?lat=" + coords2.lat + "&lon=" + coords2.lon);
     var zone2 = await zr.json();
 
     // Cadastre

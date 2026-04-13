@@ -34,6 +34,7 @@ module.exports = async (req, res) => {
       label:    f.properties.label,
       city:     f.properties.city,
       postcode: f.properties.postcode,
+      citycode: f.properties.citycode || null,
       context:  f.properties.context,
       lat:      f.geometry.coordinates[1],
       lon:      f.geometry.coordinates[0]
