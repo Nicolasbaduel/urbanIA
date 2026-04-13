@@ -138,7 +138,6 @@ async function launch() {
   // ── ÉTAPE 3 : Afficher la zone ──
   await sleep(500);
   renderZoneCard(zoneData, currentCoords);
-  await sleep(2500);
   renderCadastreCard(currentCadastre, currentCoords);
   renderQuickChips(zoneData);
   pipeState(2, 'done'); pipeState(3, 'active');
@@ -179,9 +178,10 @@ async function fetchZone(lat, lon) {
 // Données cadastrales → /api/cadastre
 async function fetchCadastre(lat, lon, codeInsee) {
   try {
-    // Utiliser le code INSEE pour forcer la bonne commune
+    // Utiliser le code INSEE pour forcer la bonne commune (OBLIGATOIRE)
     let url = 'https://apicarto.ign.fr/api/cadastre/parcelle?lon=' + lon + '&lat=' + lat + '&_limit=1';
     if (codeInsee) url += '&code_insee=' + codeInsee;
+    else return null; // Sans code INSEE on ne peut pas garantir la bonne commune
     const r = await fetch(url);
     const d = await r.json();
     if (!d.features || !d.features.length) return null;
