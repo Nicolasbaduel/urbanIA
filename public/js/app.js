@@ -802,11 +802,11 @@ function showHistory() {
     modal.id = 'historyModal';
     modal.style.cssText = 'position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;';
     modal.innerHTML =
-      '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.5)" onclick="document.getElementById('historyModal').remove()"></div>' +
+      '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.5)" onclick="document.getElementById(\"historyModal\").remove()"></div>' +
       '<div style="position:relative;background:white;width:90%;max-width:700px;max-height:80vh;overflow:auto;z-index:1001">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;border-bottom:1px solid #e2e0db">' +
           '<span style="font-weight:600;font-size:0.9rem">Historique des analyses</span>' +
-          '<button onclick="document.getElementById('historyModal').remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#666">✕</button>' +
+          '<button onclick="document.getElementById(\"historyModal\").remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#666">✕</button>' +
         '</div>' +
         '<table style="width:100%;border-collapse:collapse">' +
           '<thead><tr style="background:#f5f4f1">' +
