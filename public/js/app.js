@@ -790,7 +790,7 @@ function showHistory() {
     var rows = history.map(function(h) {
       var verdictClass = h.verdict && h.verdict.includes('OUI') ? 'color:#22a855' :
                          h.verdict && h.verdict.includes('NON') ? 'color:#c0381a' : 'color:#e68c1e';
-      return '<tr onclick="loadFromHistory('' + h.id + '')" style="cursor:pointer">' +
+      return '<tr onclick="loadFromHistory(' + h.id + ')" style="cursor:pointer">' +
         '<td style="padding:0.6rem 1rem;font-size:0.75rem;color:#666">' + h.date + '</td>' +
         '<td style="padding:0.6rem 1rem;font-size:0.8rem;font-weight:500">' + h.address + '</td>' +
         '<td style="padding:0.6rem 1rem;font-size:0.75rem;color:#666">' + h.question + '</td>' +
