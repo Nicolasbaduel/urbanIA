@@ -462,46 +462,46 @@ function toggleRuleDetail(el) {
 
 function zoneRules(z) {
   z = (z || '').toUpperCase();
-  if (z.startsWith('UA') || z === 'UC' || z === 'U')
-    return [
-      { val: '10-15m', key: 'Hauteur max',   note: 'Egout du toit - R+3/R+4', detail: "Mesuree du sol jusqu a l egout (gouttiere). Le faitage peut depasser de 1,5m." },
-      { val: '0m',     key: 'Recul voirie',  note: 'Alignement obligatoire',   detail: "La facade s implante a l alignement de la voie publique sauf indication du PLU." },
-      { val: '20%',    key: 'Pleine terre',  note: 'Jardin min. 20%',          detail: "20% minimum de la parcelle doit rester en pleine terre pour absorber les eaux de pluie." },
-      { val: '0.8-1.5',key: 'COS',          note: 'Coefficient occupation',   detail: "Surface constructible = COS x parcelle. Ex: 300m2 x COS 1.0 = 300m2 de plancher." },
-    ];
-  if (z.startsWith('UB') || z.startsWith('UD'))
-    return [
-      { val: '7-9m',   key: 'Hauteur max',   note: 'Egout du toit - R+1/R+2', detail: "Mesuree du sol jusqu a l egout du toit. Correspond a maison + 1 ou 2 etages." },
-      { val: '5m',     key: 'Recul voirie',  note: 'Distance min. rue',        detail: "La facade principale doit etre a minimum 5m de la voie publique." },
-      { val: '30%',    key: 'Pleine terre',  note: 'Jardin min. 30%',          detail: "30% minimum de la parcelle doit rester non impermeabilisee." },
-      { val: '0.3-0.6',key: 'COS',          note: 'Coefficient occupation',   detail: "Surface constructible = COS x parcelle. Ex: 500m2 x COS 0.4 = 200m2 de plancher." },
-    ];
-  if (z.startsWith('AU') || z.startsWith('1AU'))
-    return [
-      { val: '7-10m',  key: 'Hauteur max',   note: 'Egout du toit - variable', detail: "Zone a urbaniser. Hauteur definie par l OAP de la commune." },
-      { val: '5m',     key: 'Recul voirie',  note: 'Distance min. rue',        detail: "Recul minimum 5m sauf prescriptions speciales de l OAP." },
-      { val: '25%',    key: 'Pleine terre',  note: 'Jardin min. 25%',          detail: "Minimum 25% de la parcelle en pleine terre. Souvent plus dans les OAP recents." },
-      { val: 'OAP',    key: 'Orientation',   note: 'Voir document OAP',        detail: "Zone soumise a une Orientation d Amenagement. Consulter la mairie." },
-    ];
-  if (z.startsWith('N'))
-    return [
-      { val: '---',    key: 'Construction',  note: 'Tres limitee',             detail: "Zone naturelle protegee. Seules quelques constructions legeres sont autorisees." },
-      { val: '10m',    key: 'Recul voirie',  note: 'Distance min. rue',        detail: "Recul minimum 10m depuis la voie publique pour toute construction autorisee." },
-      { val: '90%',    key: 'Pleine terre',  note: 'Zone naturelle',           detail: "90% minimum de la parcelle doit rester en pleine terre. Impermeabilisation quasi interdite." },
-      { val: '~0',     key: 'COS',           note: 'Quasi nul',                detail: "COS proche de zero. La construction neuve est quasi interdite." },
-    ];
-  if (z.startsWith('A'))
-    return [
-      { val: '---',    key: 'Construction',  note: 'Usage agricole',           detail: "Zone agricole protegee. Seules les constructions agricoles sont autorisees." },
-      { val: '15m',    key: 'Recul voirie',  note: 'Distance min. rue',        detail: "Recul minimum 15m depuis la voie publique pour tout batiment agricole." },
-      { val: '85%',    key: 'Pleine terre',  note: 'Zone agricole',            detail: "85% minimum de la parcelle doit rester en pleine terre non impermeabilisee." },
-      { val: '0.05',   key: 'COS',           note: 'Tres limite',              detail: "COS tres faible reserve aux batiments agricoles indispensables." },
-    ];
+  var UA = z.startsWith('UA') || z === 'UC' || z === 'U';
+  var UB = z.startsWith('UB') || z.startsWith('UD');
+  var AU = z.startsWith('AU') || z.startsWith('1AU');
+  var NN = z.startsWith('N');
+  var AA = z.startsWith('A');
+  if (UA) return [
+    { val: '10-15m', key: 'Hauteur max',  note: 'Egout du toit R3/R4', detail: "Mesuree du sol jusqu a l egout (gouttiere). Faitage peut depasser de 1,5m." },
+    { val: '0m',     key: 'Recul voirie', note: 'Alignement obligatoire', detail: "Facade implantee a l alignement de la voie sauf indication du PLU." },
+    { val: '20%',    key: 'Pleine terre', note: 'Jardin min 20%', detail: "20% de la parcelle minimum en pleine terre pour absorber les eaux." },
+    { val: '0.8-1.5',key: 'COS',         note: 'Coeff occupation', detail: "Surface constructible = COS x parcelle. Ex: 300m2 x 1.0 = 300m2." },
+  ];
+  if (UB) return [
+    { val: '7-9m',   key: 'Hauteur max',  note: 'Egout du toit R1/R2', detail: "Mesuree du sol jusqu a l egout. Maison plus 1 ou 2 etages." },
+    { val: '5m',     key: 'Recul voirie', note: 'Distance min rue', detail: "Facade principale a minimum 5m de la voie publique." },
+    { val: '30%',    key: 'Pleine terre', note: 'Jardin min 30%', detail: "30% minimum de la parcelle non impermeabilisee." },
+    { val: '0.3-0.6',key: 'COS',         note: 'Coeff occupation', detail: "Surface constructible = COS x parcelle. Ex: 500m2 x 0.4 = 200m2." },
+  ];
+  if (AU) return [
+    { val: '7-10m',  key: 'Hauteur max',  note: 'Egout du toit variable', detail: "Zone a urbaniser. Hauteur definie par l OAP de la commune." },
+    { val: '5m',     key: 'Recul voirie', note: 'Distance min rue', detail: "Recul minimum 5m sauf prescriptions speciales de l OAP." },
+    { val: '25%',    key: 'Pleine terre', note: 'Jardin min 25%', detail: "25% minimum de la parcelle en pleine terre." },
+    { val: 'OAP',    key: 'Orientation',  note: 'Voir document OAP', detail: "Zone soumise a une Orientation d Amenagement. Consulter la mairie." },
+  ];
+  if (NN) return [
+    { val: '---',    key: 'Construction', note: 'Tres limitee', detail: "Zone naturelle protegee. Construction quasi interdite." },
+    { val: '10m',    key: 'Recul voirie', note: 'Distance min rue', detail: "Recul minimum 10m depuis la voie publique." },
+    { val: '90%',    key: 'Pleine terre', note: 'Zone naturelle', detail: "90% minimum en pleine terre. Impermeabilisation quasi interdite." },
+    { val: '~0',     key: 'COS',         note: 'Quasi nul', detail: "COS proche de zero. Construction neuve quasi interdite." },
+  ];
+  if (AA) return [
+    { val: '---',    key: 'Construction', note: 'Usage agricole', detail: "Zone agricole. Seules les constructions agricoles autorisees." },
+    { val: '15m',    key: 'Recul voirie', note: 'Distance min rue', detail: "Recul minimum 15m pour tout batiment agricole." },
+    { val: '85%',    key: 'Pleine terre', note: 'Zone agricole', detail: "85% minimum de la parcelle en pleine terre." },
+    { val: '0.05',   key: 'COS',         note: 'Tres limite', detail: "COS tres faible reserve aux batiments agricoles." },
+  ];
   return [
-    { val: '9-12m',  key: 'Hauteur max',   note: 'Egout du toit - variable',  detail: "Mesuree du sol jusqu a l egout du toit. Le faitage peut depasser de 1 a 1,5m." },
-    { val: '5m',     key: 'Recul voirie',  note: 'Distance min. variable',    detail: "Distance minimale entre la facade et la voie publique. Variable selon le PLU." },
-    { val: '25%',    key: 'Pleine terre',  note: 'Surface jardin min.',       detail: "Pourcentage minimum de la parcelle devant rester en pleine terre." },
-    { val: 'Var.',   key: 'COS',           note: 'Voir reglement PLU',        detail: "Le COS determine la surface de plancher maximum constructible sur la parcelle." },
+    { val: '9-12m',  key: 'Hauteur max',  note: 'Egout du toit variable', detail: "Mesuree du sol jusqu a l egout du toit. Faitage peut depasser de 1,5m." },
+    { val: '5m',     key: 'Recul voirie', note: 'Distance variable', detail: "Distance minimale entre la facade et la voie publique." },
+    { val: '25%',    key: 'Pleine terre', note: 'Surface jardin min', detail: "Pourcentage minimum de la parcelle en pleine terre." },
+    { val: 'Var.',   key: 'COS',         note: 'Voir PLU', detail: "Le COS determine la surface de plancher maximum constructible." },
   ];
 }
 
