@@ -117,7 +117,22 @@ async function launch() {
   currentZone = zoneData;
 
   // Récupération des données cadastrales (attendue)
-  currentCadastre = await fetchCadastre(currentCoords.lat, currentCoords.lon);
+  // Récupérer le code INSEE depuis l'API adresse (plus fiable que le postcode)
+  let codeInsee = null;
+  try {
+    const geoR = await fetch('/api/geocode?q=' + encodeURIComponent(currentAddress) + '&limit=1');
+    const geoD = await geoR.json();
+    if (geoD.results && geoD.results[0] && geoD.results[0].postcode) {
+      // Construire code INSEE depuis postcode + city (approximation)
+      // On utilise l'API ban pour avoir le code INSEE exact
+      const banR = await fetch('https://api-adresse.data.gouv.fr/search/?q=' + encodeURIComponent(currentAddress) + '&limit=1');
+      const banD = await banR.json();
+      if (banD.features && banD.features[0]) {
+        codeInsee = banD.features[0].properties.citycode;
+      }
+    }
+  } catch(e) {}
+  currentCadastre = await fetchCadastre(currentCoords.lat, currentCoords.lon, codeInsee);
   pipeState(1, 'done'); pipeState(2, 'active');
 
   // ── ÉTAPE 3 : Afficher la zone ──
@@ -161,11 +176,37 @@ async function fetchZone(lat, lon) {
 
 
 // Données cadastrales → /api/cadastre
-async function fetchCadastre(lat, lon) {
+async function fetchCadastre(lat, lon, codeInsee) {
   try {
-    const r = await fetch(`https://apicarto.ign.fr/api/cadastre/parcelle?lon=${lon}&lat=${lat}&_limit=1`);
+    // Utiliser le code INSEE pour forcer la bonne commune
+    let url = 'https://apicarto.ign.fr/api/cadastre/parcelle?lon=' + lon + '&lat=' + lat + '&_limit=1';
+    if (codeInsee) url += '&code_insee=' + codeInsee;
+    const r = await fetch(url);
     const d = await r.json();
-    return d;
+    if (!d.features || !d.features.length) return null;
+    const feat  = d.features[0];
+    const props = feat.properties;
+    const surface = props.contenance || 0;
+    return {
+      parcelle: {
+        found:    true,
+        surface,
+        commune:  props.nom_com   || '',
+        section:  props.section   || '',
+        numero:   props.numero    || '',
+        codeInsee: props.code_insee || '',
+        geometry: feat.geometry
+      },
+      calculs: surface > 0 ? {
+        surfaceParcelle:      surface,
+        empriseExistante:     0,
+        tauxOccupationActuel: null,
+        disponibleSi50pct:    Math.round(surface * 0.50),
+        disponibleSi40pct:    Math.round(surface * 0.40),
+        disponibleSi30pct:    Math.round(surface * 0.30),
+        verandaSansPermis:    Math.min(19, Math.round(surface * 0.05))
+      } : null
+    };
   } catch(e) { return null; }
 }
 
@@ -355,7 +396,41 @@ function renderCadastreCard(cad, coords) {
       style: { color: '#c0381a', weight: 2.5, fillColor: '#c0381a', fillOpacity: 0.15 }
     }).addTo(m);
     try { m.fitBounds(layer.getBounds(), { padding: [20, 20] }); } catch(e) {}
-
+  } else {
+    // Fallback : récupérer la géométrie directement depuis APICarto (public, pas de CORS)
+    fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon=' + coords.lon + '&lat=' + coords.lat + '&_limit=1')
+      .then(r => r.json())
+      .then(data => {
+        if (data.features && data.features.length > 0) {
+          const feat = data.features[0];
+          const props = feat.properties;
+          // Mettre à jour la bande avec les vraies données
+          const surface = props.contenance || 0;
+          if (surface > 0) {
+            const strip = document.querySelector('.cadastre-strip');
+            if (strip) {
+              const constructible = Math.round(surface * 0.5);
+              strip.innerHTML =
+                '<span class="cad-item"><span class="cad-label">Parcelle</span><strong>' + surface + ' m²</strong></span>' +
+                '<span class="cad-item cad-green"><span class="cad-label">Constructible est.</span><strong>' + constructible + ' m²</strong></span>' +
+                (props.section ? '<span class="cad-item"><span class="cad-label">Réf. cadastre</span><strong>Sec. ' + props.section + ' n°' + props.numero + '</strong></span>' : '');
+            }
+          }
+          // Afficher le polygone
+          if (feat.geometry) {
+            const layer = L.geoJSON(feat.geometry, {
+              style: { color: '#c0381a', weight: 2.5, fillColor: '#c0381a', fillOpacity: 0.15 }
+            }).addTo(m);
+            try { m.fitBounds(layer.getBounds(), { padding: [20, 20] }); } catch(e) {}
+          }
+        }
+      })
+      .catch(() => {
+        // Simple marqueur si tout échoue
+        L.circleMarker([coords.lat, coords.lon], {
+          radius: 10, color: '#c0381a', fillColor: '#c0381a', fillOpacity: 0.5
+        }).addTo(m);
+      });
   }
 }
 
