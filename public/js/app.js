@@ -848,48 +848,58 @@ function showHistory() {
     if (old) old.remove();
 
     if (history.length === 0) {
-      alert('Aucune analyse dans l historique.');
+      alert('Aucune analyse enregistree.');
       return;
     }
 
     var rows = history.map(function(h) {
-      var verdictClass = h.verdict && h.verdict.includes('OUI') ? 'color:#22a855' :
-                         h.verdict && h.verdict.includes('NON') ? 'color:#c0381a' : 'color:#e68c1e';
+      var vc = h.verdict && h.verdict.includes('OUI') ? 'color:#22a855' :
+               h.verdict && h.verdict.includes('NON') ? 'color:#c0381a' : 'color:#e68c1e';
       return '<tr onclick="loadFromHistory(' + h.id + ')" style="cursor:pointer">' +
         '<td style="padding:0.6rem 1rem;font-size:0.75rem;color:#666">' + h.date + '</td>' +
-        '<td style="padding:0.6rem 1rem;font-size:0.8rem;font-weight:500">' + h.address + '</td>' +
-        '<td style="padding:0.6rem 1rem;font-size:0.75rem;color:#666">' + h.question + '</td>' +
-        '<td style="padding:0.6rem 1rem;font-size:0.72rem;font-weight:600;' + verdictClass + '">' + (h.verdict || '—') + '</td>' +
+        '<td style="padding:0.6rem 1rem;font-size:0.8rem;font-weight:500">' + (h.address||'') + '</td>' +
+        '<td style="padding:0.6rem 1rem;font-size:0.75rem;color:#666">' + (h.question||'') + '</td>' +
+        '<td style="padding:0.6rem 1rem;font-size:0.72rem;font-weight:600;' + vc + '">' + (h.verdict||'') + '</td>' +
         '</tr>';
     }).join('');
 
     var modal = document.createElement('div');
     modal.id = 'historyModal';
     modal.style.cssText = 'position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;';
-    modal.innerHTML =
-      '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.5)" onclick="document.getElementById('historyModal').remove()"></div>' +
-      '<div style="position:relative;background:white;width:90%;max-width:700px;max-height:80vh;overflow:auto;z-index:1001">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;border-bottom:1px solid #e2e0db">' +
-          '<span style="font-weight:600;font-size:0.9rem">Historique des analyses</span>' +
-          '<button onclick="document.getElementById('historyModal').remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#666">✕</button>' +
-        '</div>' +
-        '<table style="width:100%;border-collapse:collapse">' +
-          '<thead><tr style="background:#f5f4f1">' +
-            '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Date</th>' +
-            '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Adresse</th>' +
-            '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Question</th>' +
-            '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Verdict</th>' +
-          '</tr></thead>' +
-          '<tbody style="divide-y">' + rows + '</tbody>' +
-        '</table>' +
-        '<div style="padding:0.8rem 1.5rem;border-top:1px solid #e2e0db;display:flex;justify-content:space-between;align-items:center">' +
-          '<span style="font-size:0.72rem;color:#666">' + history.length + ' analyse(s) sauvegardee(s)</span>' +
-          '<button onclick="clearHistory()" style="font-size:0.72rem;color:#c0381a;background:none;border:none;cursor:pointer">Effacer l historique</button>' +
-        '</div>' +
+
+    var inner = document.createElement('div');
+    inner.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.5)';
+    inner.onclick = function() { modal.remove(); };
+    modal.appendChild(inner);
+
+    var panel = document.createElement('div');
+    panel.style.cssText = 'position:relative;background:white;width:90%;max-width:700px;max-height:80vh;overflow:auto;z-index:1001';
+    panel.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;border-bottom:1px solid #e2e0db">' +
+        '<span style="font-weight:600;font-size:0.9rem">Historique des analyses</span>' +
+        '<button id="closeHistBtn" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#666">X</button>' +
+      '</div>' +
+      '<table style="width:100%;border-collapse:collapse">' +
+        '<thead><tr style="background:#f5f4f1">' +
+          '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Date</th>' +
+          '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Adresse</th>' +
+          '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Question</th>' +
+          '<th style="padding:0.5rem 1rem;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#666;text-align:left">Verdict</th>' +
+        '</tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>' +
+      '<div style="padding:0.8rem 1.5rem;border-top:1px solid #e2e0db;display:flex;justify-content:space-between;align-items:center">' +
+        '<span style="font-size:0.72rem;color:#666">' + history.length + ' analyse(s)</span>' +
+        '<button id="clearHistBtn" style="font-size:0.72rem;color:#c0381a;background:none;border:none;cursor:pointer">Effacer tout</button>' +
       '</div>';
 
+    modal.appendChild(panel);
     document.body.appendChild(modal);
-  } catch(e) {}
+
+    document.getElementById('closeHistBtn').onclick = function() { modal.remove(); };
+    document.getElementById('clearHistBtn').onclick = function() { clearHistory(); };
+
+  } catch(e) { console.error(e); }
 }
 
 function clearHistory() {
