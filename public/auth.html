@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UrbanIA — Connexion</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --noir: #0f0f0f; --blanc: #fafaf8; --rouge: #c0381a;
+      --gris: #6b6b6b; --border: #e2e0db; --off: #f5f4f1;
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--off);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 1rem;
+    }
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .auth-logo span { color: var(--rouge); }
+    .auth-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 2.5rem;
+    }
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 0.7rem;
+      text-align: center;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      color: var(--gris);
+      transition: all 0.2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: inherit;
+    }
+    .auth-tab.active {
+      color: var(--noir);
+      border-bottom-color: var(--noir);
+    }
+    .form-group { margin-bottom: 1.2rem; }
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gris);
+      margin-bottom: 0.4rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--border);
+      font-size: 0.88rem;
+      font-family: inherit;
+      background: var(--blanc);
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input:focus { border-color: var(--noir); }
+    .btn-auth {
+      width: 100%;
+      background: var(--noir);
+      color: white;
+      border: none;
+      padding: 0.85rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 0.5rem;
+    }
+    .btn-auth:hover { background: #333; }
+    .btn-auth:disabled { background: #ccc; cursor: not-allowed; }
+    .auth-msg {
+      margin-top: 1rem;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.78rem;
+      border-radius: 2px;
+      display: none;
+    }
+    .auth-msg.error { background: #fef2f2; color: #c0381a; border: 1px solid #fecaca; display: block; }
+    .auth-msg.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; display: block; }
+    .auth-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: var(--gris);
+    }
+    .auth-footer a { color: var(--noir); }
+  </style>
+</head>
+<body>
+<div class="auth-container">
+  <div class="auth-logo">URBAN<span>IA</span></div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="showTab('login')">Connexion</button>
+      <button class="auth-tab" onclick="showTab('signup')">Inscription</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="vous@exemple.fr" autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button class="btn-auth" onclick="login()">Se connecter →</button>
+      <div id="loginMsg" class="auth-msg"></div>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupForm" style="display:none">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="signupEmail" placeholder="vous@exemple.fr" autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="signupPassword" placeholder="Minimum 6 caracteres" autocomplete="new-password"/>
+      </div>
+      <button class="btn-auth" onclick="signup()">Creer mon compte →</button>
+      <div id="signupMsg" class="auth-msg"></div>
+    </div>
+  </div>
+  <div class="auth-footer">
+    <a href="/index.html">← Retour a l application</a>
+  </div>
+</div>
+
+<script>
+  const SUPA_URL = 'https://otyrdakukwocjdaczldf.supabase.co';
+  const SUPA_KEY = 'sb_publishable_XBn-rzpM44IDeJ_IsMfwXg_u2ye2jaR';
+
+  function showTab(tab) {
+    document.getElementById('loginForm').style.display  = tab === 'login'  ? 'block' : 'none';
+    document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+    document.querySelectorAll('.auth-tab').forEach(function(t, i) {
+      t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'signup'));
+    });
+  }
+
+  async function login() {
+    var email = document.getElementById('loginEmail').value.trim();
+    var pass  = document.getElementById('loginPassword').value;
+    var msg   = document.getElementById('loginMsg');
+    var btn   = document.querySelector('#loginForm .btn-auth');
+    if (!email || !pass) { showMsg(msg, 'error', 'Remplissez tous les champs.'); return; }
+    btn.disabled = true; btn.textContent = 'Connexion...';
+    try {
+      var r = await fetch(SUPA_URL + '/auth/v1/token?grant_type=password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY },
+        body: JSON.stringify({ email: email, password: pass })
+      });
+      var d = await r.json();
+      if (d.access_token) {
+        localStorage.setItem('urbaniaToken', d.access_token);
+        localStorage.setItem('urbaniaUser', JSON.stringify({ email: email, id: d.user.id }));
+        showMsg(msg, 'success', 'Connexion reussie ! Redirection...');
+        setTimeout(function() { window.location.href = '/index.html'; }, 1000);
+      } else {
+        showMsg(msg, 'error', d.error_description || 'Email ou mot de passe incorrect.');
+        btn.disabled = false; btn.textContent = 'Se connecter →';
+      }
+    } catch(e) {
+      showMsg(msg, 'error', 'Erreur reseau. Reessayez.');
+      btn.disabled = false; btn.textContent = 'Se connecter →';
+    }
+  }
+
+  async function signup() {
+    var email = document.getElementById('signupEmail').value.trim();
+    var pass  = document.getElementById('signupPassword').value;
+    var msg   = document.getElementById('signupMsg');
+    var btn   = document.querySelector('#signupForm .btn-auth');
+    if (!email || !pass) { showMsg(msg, 'error', 'Remplissez tous les champs.'); return; }
+    if (pass.length < 6) { showMsg(msg, 'error', 'Mot de passe trop court (6 caracteres minimum).'); return; }
+    btn.disabled = true; btn.textContent = 'Creation...';
+    try {
+      var r = await fetch(SUPA_URL + '/auth/v1/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY },
+        body: JSON.stringify({ email: email, password: pass })
+      });
+      var d = await r.json();
+      if (d.id || d.user) {
+        showMsg(msg, 'success', 'Compte cree ! Verifiez votre email pour confirmer.');
+        btn.textContent = 'Compte cree !';
+      } else {
+        showMsg(msg, 'error', d.error_description || d.msg || 'Erreur lors de la creation.');
+        btn.disabled = false; btn.textContent = 'Creer mon compte →';
+      }
+    } catch(e) {
+      showMsg(msg, 'error', 'Erreur reseau. Reessayez.');
+      btn.disabled = false; btn.textContent = 'Creer mon compte →';
+    }
+  }
+
+  function showMsg(el, type, text) {
+    el.className = 'auth-msg ' + type;
+    el.textContent = text;
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      if (document.getElementById('loginForm').style.display !== 'none') login();
+      else signup();
+    }
+  });
+</script>
+</body>
+</html>

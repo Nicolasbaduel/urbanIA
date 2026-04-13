@@ -12,11 +12,75 @@ let currentCoords  = null;
 let currentAddress = '';
 let suggestTimer   = null;
 
+
+// ════════════════════════════════════════
+// AUTHENTIFICATION SUPABASE
+// ════════════════════════════════════════
+var SUPA_URL = 'https://otyrdakukwocjdaczldf.supabase.co';
+var SUPA_KEY = 'sb_publishable_XBn-rzpM44IDeJ_IsMfwXg_u2ye2jaR';
+
+function getUser() {
+  try { return JSON.parse(localStorage.getItem('urbaniaUser')); } catch(e) { return null; }
+}
+
+function getToken() {
+  return localStorage.getItem('urbaniaToken') || null;
+}
+
+function logout() {
+  localStorage.removeItem('urbaniaToken');
+  localStorage.removeItem('urbaniaUser');
+  updateAuthUI();
+}
+
+function updateAuthUI() {
+  var user = getUser();
+  var btn  = document.getElementById('authBtn');
+  var hist = document.getElementById('historyBtn');
+  if (!btn) return;
+  if (user) {
+    btn.textContent = user.email.split('@')[0] + ' · Deconnexion';
+    btn.onclick = function() { if(confirm('Se deconnecter ?')) logout(); };
+    if (hist) hist.style.display = 'inline-block';
+  } else {
+    btn.textContent = '👤 Connexion';
+    btn.onclick = function() { window.location.href = '/auth.html'; };
+    if (hist) hist.style.display = 'inline-block';
+  }
+}
+
+// Sync history to Supabase when logged in
+async function syncHistoryToCloud(entry) {
+  var token = getToken();
+  var user  = getUser();
+  if (!token || !user) return;
+  try {
+    await fetch(SUPA_URL + '/rest/v1/analyses', {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'apikey':        SUPA_KEY,
+        'Authorization': 'Bearer ' + token,
+        'Prefer':        'return=minimal'
+      },
+      body: JSON.stringify({
+        user_id:  user.id,
+        address:  entry.address,
+        question: entry.question,
+        verdict:  entry.verdict,
+        zone:     entry.zone,
+        commune:  entry.commune
+      })
+    });
+  } catch(e) {}
+}
+
 // ════════════════════════════════════════
 // INIT — vérification serveur
 // ════════════════════════════════════════
 window.addEventListener('DOMContentLoaded', async () => {
   renderHistoryCount();
+  updateAuthUI();
   try {
     const r = await fetch('/api/health');
     const d = await r.json();
@@ -155,7 +219,7 @@ async function geocode(address) {
 // Zone PLU → /api/gpu/zone
 async function fetchZone(lat, lon) {
   try {
-    const r = await fetch(`/api/gpu?lat=${lat}&lon=${lon}`);
+    const r = await fetch(`/api/gpu/zone?lat=${lat}&lon=${lon}`);
     const d = await r.json();
     return d;
   } catch(e) {
@@ -763,6 +827,7 @@ function saveToHistory(address, question, verdict, zone) {
     history = history.slice(0, 20);
     localStorage.setItem('urbaniaHistory', JSON.stringify(history));
     renderHistoryCount();
+    syncHistoryToCloud(history[0]);
   } catch(e) {}
 }
 
@@ -783,14 +848,14 @@ function showHistory() {
     if (old) old.remove();
 
     if (history.length === 0) {
-      alert('Aucune analyse enregistree.');
+      alert('Aucune analyse dans l historique.');
       return;
     }
 
     var rows = history.map(function(h) {
       var verdictClass = h.verdict && h.verdict.includes('OUI') ? 'color:#22a855' :
                          h.verdict && h.verdict.includes('NON') ? 'color:#c0381a' : 'color:#e68c1e';
-      return '<tr onclick="loadFromHistory(' + h.id + ')" style="cursor:pointer">' +
+      return '<tr onclick="loadFromHistory('' + h.id + '')" style="cursor:pointer">' +
         '<td style="padding:0.6rem 1rem;font-size:0.75rem;color:#666">' + h.date + '</td>' +
         '<td style="padding:0.6rem 1rem;font-size:0.8rem;font-weight:500">' + h.address + '</td>' +
         '<td style="padding:0.6rem 1rem;font-size:0.75rem;color:#666">' + h.question + '</td>' +
@@ -802,11 +867,11 @@ function showHistory() {
     modal.id = 'historyModal';
     modal.style.cssText = 'position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;';
     modal.innerHTML =
-      '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.5)" onclick="document.getElementById(\"historyModal\").remove()"></div>' +
+      '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.5)" onclick="document.getElementById('historyModal').remove()"></div>' +
       '<div style="position:relative;background:white;width:90%;max-width:700px;max-height:80vh;overflow:auto;z-index:1001">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;border-bottom:1px solid #e2e0db">' +
           '<span style="font-weight:600;font-size:0.9rem">Historique des analyses</span>' +
-          '<button onclick="document.getElementById(\"historyModal\").remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#666">✕</button>' +
+          '<button onclick="document.getElementById('historyModal').remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#666">✕</button>' +
         '</div>' +
         '<table style="width:100%;border-collapse:collapse">' +
           '<thead><tr style="background:#f5f4f1">' +
@@ -819,7 +884,7 @@ function showHistory() {
         '</table>' +
         '<div style="padding:0.8rem 1.5rem;border-top:1px solid #e2e0db;display:flex;justify-content:space-between;align-items:center">' +
           '<span style="font-size:0.72rem;color:#666">' + history.length + ' analyse(s) sauvegardee(s)</span>' +
-          '<button onclick="clearHistory()" style="font-size:0.72rem;color:#c0381a;background:none;border:none;cursor:pointer">Effacer tout</button>' +
+          '<button onclick="clearHistory()" style="font-size:0.72rem;color:#c0381a;background:none;border:none;cursor:pointer">Effacer l historique</button>' +
         '</div>' +
       '</div>';
 
@@ -916,7 +981,7 @@ async function launchCompare() {
     if (!coords2) { btn.textContent = "Adresse introuvable"; btn.disabled = false; return; }
 
     // Zone PLU
-    var zr = await fetch("/api/gpu?lat=" + coords2.lat + "&lon=" + coords2.lon);
+    var zr = await fetch("/api/gpu/zone?lat=" + coords2.lat + "&lon=" + coords2.lon);
     var zone2 = await zr.json();
 
     // Cadastre
