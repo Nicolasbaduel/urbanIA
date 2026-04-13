@@ -933,3 +933,27 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+/* ── SCHEMAS SVG REGLES PLU ── */
+.rule-svg {
+  padding: 0.6rem 0.8rem 0.4rem;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+}
+
+.rule-svg svg {
+  max-width: 160px;
+  height: auto;
+  display: block;
+}
+
+.rule-detail-text {
+  padding: 0.5rem 0.75rem 0.6rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.rule-cell.rule-open .rule-svg { display: flex; }
