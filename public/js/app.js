@@ -783,7 +783,7 @@ function showHistory() {
     if (old) old.remove();
 
     if (history.length === 0) {
-      alert('Aucune analyse dans l historique.');
+      alert('Aucune analyse enregistree.');
       return;
     }
 
@@ -819,7 +819,7 @@ function showHistory() {
         '</table>' +
         '<div style="padding:0.8rem 1.5rem;border-top:1px solid #e2e0db;display:flex;justify-content:space-between;align-items:center">' +
           '<span style="font-size:0.72rem;color:#666">' + history.length + ' analyse(s) sauvegardee(s)</span>' +
-          '<button onclick="clearHistory()" style="font-size:0.72rem;color:#c0381a;background:none;border:none;cursor:pointer">Effacer l historique</button>' +
+          '<button onclick="clearHistory()" style="font-size:0.72rem;color:#c0381a;background:none;border:none;cursor:pointer">Effacer tout</button>' +
         '</div>' +
       '</div>';
 
