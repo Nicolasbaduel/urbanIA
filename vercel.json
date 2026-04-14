@@ -49,6 +49,10 @@
       "dest": "/api/risques.js"
     },
     {
+      "src": "/api/create-checkout",
+      "dest": "/api/create-checkout.js"
+    },
+    {
       "src": "/css/(.*)",
       "dest": "/public/css/$1"
     },

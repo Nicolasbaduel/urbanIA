@@ -14,6 +14,119 @@ let suggestTimer   = null;
 
 
 // ════════════════════════════════════════
+// STRIPE — ABONNEMENT PRO
+// ════════════════════════════════════════
+var DAILY_LIMIT = 5; // analyses gratuites par jour
+
+function getDailyCount() {
+  try {
+    var data = JSON.parse(localStorage.getItem('urbaniaDaily') || '{}');
+    var today = new Date().toDateString();
+    if (data.date !== today) return 0;
+    return data.count || 0;
+  } catch(e) { return 0; }
+}
+
+function incrementDailyCount() {
+  try {
+    var today = new Date().toDateString();
+    var count = getDailyCount() + 1;
+    localStorage.setItem('urbaniaDaily', JSON.stringify({ date: today, count: count }));
+  } catch(e) {}
+}
+
+function isPro() {
+  // Pour l instant, verifier via localStorage (sera remplace par webhook Stripe)
+  return localStorage.getItem('urbaniaIsPro') === 'true';
+}
+
+function checkDailyLimit() {
+  if (isPro()) return true; // Pro = illimite
+  var count = getDailyCount();
+  if (count >= DAILY_LIMIT) {
+    showUpgradeModal();
+    return false;
+  }
+  return true;
+}
+
+function showUpgradeModal() {
+  var old = document.getElementById('upgradeModal');
+  if (old) old.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'upgradeModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;';
+
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,0.6)';
+  overlay.onclick = function() { modal.remove(); };
+  modal.appendChild(overlay);
+
+  var panel = document.createElement('div');
+  panel.style.cssText = 'position:relative;background:white;width:90%;max-width:420px;z-index:2001;overflow:hidden;';
+  panel.innerHTML =
+    '<div style="background:#0f0f0f;padding:1.5rem;text-align:center">' +
+      '<div style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.02em">URBAN<span style="color:#c0381a">IA</span> Pro</div>' +
+      '<div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-top:0.3rem">Analyses illimitees</div>' +
+    '</div>' +
+    '<div style="padding:2rem">' +
+      '<div style="text-align:center;margin-bottom:1.5rem">' +
+        '<div style="font-size:2.5rem;font-weight:700;letter-spacing:-0.03em">29<span style="font-size:1rem;font-weight:400;color:#666">€/mois</span></div>' +
+        '<div style="font-size:0.75rem;color:#666;margin-top:0.2rem">Sans engagement</div>' +
+      '</div>' +
+      '<div style="background:#f5f4f1;padding:1rem;margin-bottom:1.5rem;font-size:0.8rem;color:#666;text-align:center">' +
+        'Vous avez atteint la limite de <strong>' + DAILY_LIMIT + ' analyses gratuites</strong> aujourd hui.<br>' +
+        'Passez Pro pour des analyses illimitees.' +
+      '</div>' +
+      '<ul style="list-style:none;margin-bottom:1.5rem">' +
+        '<li style="padding:0.4rem 0;font-size:0.82rem;border-bottom:1px solid #e2e0db">✓ Analyses illimitees</li>' +
+        '<li style="padding:0.4rem 0;font-size:0.82rem;border-bottom:1px solid #e2e0db">✓ Export PDF professionnel</li>' +
+        '<li style="padding:0.4rem 0;font-size:0.82rem;border-bottom:1px solid #e2e0db">✓ Historique dans le cloud</li>' +
+        '<li style="padding:0.4rem 0;font-size:0.82rem">✓ Comparaison de parcelles</li>' +
+      '</ul>' +
+      '<button onclick="redirectToCheckout()" style="width:100%;background:#c0381a;color:white;border:none;padding:0.9rem;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit">Passer Pro — 29€/mois →</button>' +
+      '<button onclick="document.getElementById('upgradeModal').remove()" style="width:100%;background:none;border:none;padding:0.6rem;font-size:0.78rem;color:#666;cursor:pointer;font-family:inherit;margin-top:0.5rem">Continuer avec la version gratuite</button>' +
+    '</div>';
+
+  modal.appendChild(panel);
+  document.body.appendChild(modal);
+}
+
+async function redirectToCheckout() {
+  var btn = document.querySelector('#upgradeModal button');
+  if (btn) { btn.textContent = 'Redirection...'; btn.disabled = true; }
+  try {
+    var user = getUser();
+    var r = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user ? user.email : '' })
+    });
+    var d = await r.json();
+    if (d.url) window.location.href = d.url;
+    else alert('Erreur de paiement. Reessayez.');
+  } catch(e) {
+    alert('Erreur reseau. Reessayez.');
+  }
+}
+
+// Verifier si retour de Stripe avec succes
+function checkStripeReturn() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('upgrade') === 'success') {
+    localStorage.setItem('urbaniaIsPro', 'true');
+    var banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#22a855;color:white;text-align:center;padding:0.7rem;font-size:0.85rem;z-index:999;font-weight:500';
+    banner.textContent = 'Bienvenue dans UrbanIA Pro ! Analyses illimitees activees.';
+    document.body.appendChild(banner);
+    setTimeout(function() { banner.remove(); }, 5000);
+    window.history.replaceState({}, '', '/index.html');
+  }
+}
+
+
+// ════════════════════════════════════════
 // AUTHENTIFICATION SUPABASE
 // ════════════════════════════════════════
 var SUPA_URL = 'https://otyrdakukwocjdaczldf.supabase.co';
@@ -81,6 +194,7 @@ async function syncHistoryToCloud(entry) {
 window.addEventListener('DOMContentLoaded', async () => {
   renderHistoryCount();
   updateAuthUI();
+  checkStripeReturn();
   try {
     const r = await fetch('/api/health');
     const d = await r.json();
@@ -149,6 +263,8 @@ document.addEventListener('click', e => {
 // LANCEMENT DU FLOW PRINCIPAL
 // ════════════════════════════════════════
 async function launch() {
+  if (!checkDailyLimit()) return;
+  incrementDailyCount();
   const question = document.getElementById('questionInput').value.trim();
   const address  = document.getElementById('addressInput').value.trim();
 
