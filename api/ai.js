@@ -179,53 +179,53 @@ Reponds UNIQUEMENT en JSON valide, sans markdown.`;
   const tauxTA = 820; // Taux taxe amenagement moyen France 2024 (€/m²)
 
   const userPrompt = `CONTEXTE :
-Adresse : ${address||'non précisée'}
+Adresse : ${address||'non non precisee'}
 ${zoneCtx}
-Source PLU : ${pluAvailable ? 'PDF officiel (' + pluText.length + ' car.)' : 'Règles générales'}
+Source PLU : ${pluAvailable ? 'PDF officiel (' + pluText.length + ' car.)' : 'Regles generales'}
 ${cadastreCtx}
-${surfaceParcelle ? 'Surface parcelle reelle : ' + surfaceParcelle + ' m²' : ''}
-${shonMax ? 'SHON max estimee (COS 0.4) : ' + shonMax + ' m²' : ''}
+${surfaceParcelle ? 'Surface parcelle reelle : ' + surfaceParcelle + ' m2' : ''}
+${shonMax ? 'SHON max estimee (COS 0.4) : ' + shonMax + ' m2' : ''}
 ${pluContext}
 
 QUESTION : "${question}"
 
 INSTRUCTIONS SUPPLEMENTAIRES :
-1. PRIX DU MARCHE : Estime le prix au m² actuel pour cette commune (maison et appartement separement) basé sur tes données DVF 2023-2024. Format: "2800-3500 €/m²"
+1. PRIX DU MARCHE : Estime le prix au m2 actuel pour cette commune (maison et appartement separement) base sur tes donnees DVF 2023-2024. Format: "2800-3500 EUR/m2"
 2. SHON/EMPRISE : Calcule la surface constructible max sur cette parcelle selon les regles PLU de la zone. Detaille par niveau si pertinent.
 3. DELAIS : Estime les delais d instruction realistes (DP = 1 mois, PC = 2-3 mois, recours tiers = 2 mois apres affichage).
-4. TAXE AMENAGEMENT : Calcule la taxe d amenagement estimee pour le projet decrit. Formule : surface x ${tauxTA}€ x taux communal (generalement 1-5%).
+4. TAXE AMENAGEMENT : Calcule la taxe d amenagement estimee pour le projet decrit. Formule : surface x ${tauxTA}EUR x taux communal (generalement 1-5%).
 
-JSON de réponse (sans markdown) :
+JSON de reponse (sans markdown) :
 {
   "verdict": "OUI"|"NON"|"SOUS_CONDITIONS"|"INFO",
-  "resume": "Réponse directe 1-2 phrases${pluAvailable ? ' avec citation article si possible' : ''}",
+  "resume": "Reponse directe 1-2 phrases${pluAvailable ? ' avec citation article si possible' : ''}",
   "source_plu": "${pluAvailable ? 'pdf_officiel' : 'regles_generales'}",
-  "conditions": [{"type":"ok"|"alert"|"info"|"warn","text":"règle précise${pluAvailable ? ' + n° article' : ' + valeur chiffrée'}"}],
+  "conditions": [{"type":"ok"|"alert"|"info"|"warn","text":"regle precise${pluAvailable ? ' + ndeg article' : ' + valeur chiffree'}"}],
   "regles": [{"label":"nom","valeur":"valeur","article":"${pluAvailable ? 'Art. X PLU ' + (commune||'') : 'Zone ' + (zone||'U') + ' France'}"}],
-  "couts": {"present":true|false,"fourchette":"ex: 15 000€ – 35 000€","detail":"détail travaux"},
-  "etapes": ["étape 1","étape 2","étape 3"],
+  "couts": {"present":true|false,"fourchette":"ex: 15 000EUR - 35 000EUR","detail":"detail travaux"},
+  "etapes": ["etape 1","etape 2","etape 3"],
   "risques": ["risque si applicable"],
   "marche": {
-    "prix_maison": "ex: 2800-3500 €/m²",
-    "prix_appart": "ex: 2200-2800 €/m²",
+    "prix_maison": "ex: 2800-3500 EUR/m2",
+    "prix_appart": "ex: 2200-2800 EUR/m2",
     "source": "DVF 2023-2024"
   },
   "constructibilite": {
-    "shon_max": "ex: 130 m²",
-    "detail": "ex: RDC 80m² + R+1 50m² selon COS 0.4 et hauteur max 9m"
+    "shon_max": "ex: 130 m2",
+    "detail": "ex: RDC 80m2 + R+1 50m2 selon COS 0.4 et hauteur max 9m"
   },
   "delais": {
     "instruction": "ex: 1 mois (DP) ou 2-3 mois (PC)",
-    "recours_tiers": "2 mois après affichage",
+    "recours_tiers": "2 mois apres affichage",
     "total_estime": "ex: 3-5 mois"
   },
   "taxe_amenagement": {
-    "montant_estime": "ex: 1 200 – 2 400 €",
+    "montant_estime": "ex: 1 200 - 2 400 EUR",
     "detail": "Surface x taux x valeur forfaitaire"
   },
-  "disclaimer": "${pluAvailable ? 'Analyse sur PLU officiel ' + (commune||'') + '. Vérifiez en mairie avant dépôt.' : 'PLU non disponible. Vérifiez en mairie.'}"
+  "disclaimer": "${pluAvailable ? 'Analyse sur PLU officiel ' + (commune||'') + '. Verifiez en mairie avant depot.' : 'PLU non disponible. Verifiez en mairie.'}"
 }
-Max 5 conditions, 3 règles, 4 étapes.`;
+Max 5 conditions, 3 regles, 4 etapes.`;
 
   try {
     const result = await callAnthropic({
