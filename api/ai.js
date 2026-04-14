@@ -161,8 +161,7 @@ module.exports = async (req, res) => {
     '- Si CES 40% (mixte)       : ' + c.calculs.disponibleSi40pct + ' m2 disponibles',
     '- Si CES 30% (pavillonnaire): ' + c.calculs.disponibleSi30pct + ' m2 disponibles',
     '- Veranda max sans permis  : ' + c.calculs.verandaSansPermis + ' m2'
-  ].join('
-') : '';
+  ].join('\n') : '';
 
 
   const systemPrompt = `Tu es UrbanIA, expert en droit de l'urbanisme francais et PLU.
