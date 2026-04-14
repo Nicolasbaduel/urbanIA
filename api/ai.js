@@ -252,3 +252,4 @@ Max 5 conditions, 3 regles, 4 etapes.`;
     res.status(500).json({ error: 'Erreur analyse IA', detail: err.message });
   }
 };
+// fixed
