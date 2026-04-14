@@ -86,11 +86,13 @@ function showUpgradeModal() {
         '<li style="padding:0.4rem 0;font-size:0.82rem">✓ Comparaison de parcelles</li>' +
       '</ul>' +
       '<button onclick="redirectToCheckout()" style="width:100%;background:#c0381a;color:white;border:none;padding:0.9rem;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:inherit">Passer Pro — 29€/mois →</button>' +
-      '<button onclick="document.getElementById("+'upgradeModal'+").remove()" style="width:100%;background:none;border:none;padding:0.6rem;font-size:0.78rem;color:#666;cursor:pointer;font-family:inherit;margin-top:0.5rem">Continuer avec la version gratuite</button>' +
+      '<button id="skipUpgradeBtn" style="width:100%;background:none;border:none;padding:0.6rem;font-size:0.78rem;color:#666;cursor:pointer;font-family:inherit;margin-top:0.5rem">Continuer avec la version gratuite</button>' +
     '</div>';
 
   modal.appendChild(panel);
   document.body.appendChild(modal);
+  var skipBtn = document.getElementById('skipUpgradeBtn');
+  if (skipBtn) skipBtn.onclick = function() { modal.remove(); };
 }
 
 async function redirectToCheckout() {
