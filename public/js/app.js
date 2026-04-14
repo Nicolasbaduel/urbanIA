@@ -567,7 +567,7 @@ function renderCadastreCard(cad, coords) {
   window._leafletMap = m;
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap', maxZoom: 20
+    attribution: '© OpenStreetMap', maxZoom: 18
   }).addTo(m);
 
   m.setView([coords.lat, coords.lon], 18);
