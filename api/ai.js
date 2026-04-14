@@ -172,7 +172,7 @@ Reponds UNIQUEMENT en JSON valide, sans markdown.`;
 
   const pluContext = pluAvailable ? `\n\n=== REGLEMENT PLU OFFICIEL (${urlfic}) ===\n${pluText}\n=== FIN ===` : '';
 
-  const surfaceParcelle = cadastre cadastreData && cadastreData.surfaceParcellecadastreData && cadastreData.surfaceParcelle cadastre.calculs cadastreData && cadastreData.surfaceParcellecadastreData && cadastreData.surfaceParcelle cadastre.calculs.surfaceParcelle ? cadastreData.surfaceParcelle : null;
+  const surfaceParcelle = cadastre && cadastre.calculs ? cadastre.calculs.surfaceParcelle : null;
   const cos = 0.4; // COS moyen zone U France
   const shonMax = surfaceParcelle ? Math.round(surfaceParcelle * cos) : null;
   const tauxTA = 820; // Taux taxe amenagement moyen France 2024 (EUR/m2)
