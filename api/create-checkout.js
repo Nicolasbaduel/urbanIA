@@ -36,12 +36,12 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { email } = req.body || {};
-  const BASE_URL = 'https://urban-ia-two.vercel.app';
+  const BASE_URL = 'https://votreparcelle.eu';
 
   try {
     const session = await stripePost('/v1/checkout/sessions', {
       'payment_method_types[]': 'card',
-      'line_items[0][price]': 'price_1TLrLTLtzaLwPgx4l4ewdUbs',
+      'line_items[0][price]': 'price_1TM8vuLnIPgvNzwc50NfDS0k',
       'line_items[0][quantity]': '1',
       'mode': 'subscription',
       'success_url': BASE_URL + '/index.html?upgrade=success',
