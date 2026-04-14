@@ -171,12 +171,12 @@ ${cadastreCtx ? 'Tu as les DONNEES CADASTRALES REELLES. Utilise ces chiffres pre
 Reponds UNIQUEMENT en JSON valide, sans markdown.`;
 
 
-  const pluContext = pluAvailable ? `\n\n=== RÈGLEMENT PLU OFFICIEL (${urlfic}) ===\n${pluText}\n=== FIN ===` : '';
+  const pluContext = pluAvailable ? `\n\n=== REGLEMENT PLU OFFICIEL (${urlfic}) ===\n${pluText}\n=== FIN ===` : '';
 
   const surfaceParcelle = cadastreData && cadastreData.surfaceParcelle ? cadastreData.surfaceParcelle : null;
   const cos = 0.4; // COS moyen zone U France
   const shonMax = surfaceParcelle ? Math.round(surfaceParcelle * cos) : null;
-  const tauxTA = 820; // Taux taxe amenagement moyen France 2024 (€/m²)
+  const tauxTA = 820; // Taux taxe amenagement moyen France 2024
 
   const userPrompt = `CONTEXTE :
 Adresse : ${address||'non non precisee'}
