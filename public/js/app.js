@@ -303,7 +303,7 @@ async function launch() {
   // Code INSEE depuis le geocodage initial
   const codeInsee = currentCoords.citycode || (currentZone && currentZone.codeInsee) || null;
   currentCadastre = await fetchCadastre(currentCoords.lat, currentCoords.lon, codeInsee);
-  fetchRisques(codeInsee).then(d => { currentRisques = d; setTimeout(function(){ renderRisquesCard(currentRisques); }, 500); });
+  fetchRisques(codeInsee).then(d => { currentRisques = d; });
   pipeState(1, 'done'); pipeState(2, 'active');
 
   // ── ÉTAPE 3 : Afficher la zone ──
@@ -590,7 +590,7 @@ function renderCadastreCard(cad, coords) {
     } catch(e) {}
   } else {
     // Fallback : récupérer la géométrie directement depuis APICarto (public, pas de CORS)
-    fetch('/api/cadastre?lon=' + coords.lon + '&lat=' + coords.lat)
+    fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon=' + coords.lon + '&lat=' + coords.lat + '&_limit=1')
       .then(r => r.json())
       .then(data => {
         if (data.features && data.features.length > 0) {
@@ -723,6 +723,40 @@ function renderAnswer(question, data) {
       ${data.couts.detail ? `<div class="couts-detail">${data.couts.detail}</div>` : ''}
     </div>` : '';
 
+  // Prix du marché
+  const marcheHtml = data.marche ? `
+    <div class="couts-title">Prix du marché immobilier</div>
+    <div class="marche-grid">
+      ${data.marche.prix_maison ? `<div class="marche-item"><span class="marche-label">🏠 Maison</span><span class="marche-val">${data.marche.prix_maison}</span></div>` : ''}
+      ${data.marche.prix_appart ? `<div class="marche-item"><span class="marche-label">🏢 Appartement</span><span class="marche-val">${data.marche.prix_appart}</span></div>` : ''}
+      ${data.marche.source ? `<div class="marche-source">Source : ${data.marche.source}</div>` : ''}
+    </div>` : '';
+
+  // Constructibilité
+  const constructHtml = data.constructibilite ? `
+    <div class="couts-title">Potentiel constructible</div>
+    <div class="construct-box">
+      ${data.constructibilite.shon_max ? `<div class="construct-shon">📐 Surface max : <strong>${data.constructibilite.shon_max}</strong></div>` : ''}
+      ${data.constructibilite.detail ? `<div class="construct-detail">${data.constructibilite.detail}</div>` : ''}
+    </div>` : '';
+
+  // Délais
+  const delaisHtml = data.delais ? `
+    <div class="couts-title">Délais estimés</div>
+    <div class="delais-box">
+      ${data.delais.instruction ? `<div class="delai-item">⏱ Instruction : <strong>${data.delais.instruction}</strong></div>` : ''}
+      ${data.delais.recours_tiers ? `<div class="delai-item">⚖️ Recours tiers : ${data.delais.recours_tiers}</div>` : ''}
+      ${data.delais.total_estime ? `<div class="delai-total">Total estimé : <strong>${data.delais.total_estime}</strong></div>` : ''}
+    </div>` : '';
+
+  // Taxe d'aménagement
+  const taxeHtml = data.taxe_amenagement ? `
+    <div class="couts-title">Taxe d'aménagement</div>
+    <div class="taxe-box">
+      ${data.taxe_amenagement.montant_estime ? `<div class="taxe-montant">🏛 Montant estimé : <strong>${data.taxe_amenagement.montant_estime}</strong></div>` : ''}
+      ${data.taxe_amenagement.detail ? `<div class="taxe-detail">${data.taxe_amenagement.detail}</div>` : ''}
+    </div>` : '';
+
   // Étapes
   const etapesHtml = (data.etapes || []).length ? `
     <div class="etapes-title">Prochaines étapes</div>
@@ -764,6 +798,10 @@ function renderAnswer(question, data) {
         ${condHtml}
         ${reglesHtml}
         ${coutsHtml}
+        ${marcheHtml}
+        ${constructHtml}
+        ${delaisHtml}
+        ${taxeHtml}
         ${etapesHtml}
         ${risquesHtml}
         ${data.disclaimer ? `<div class="answer-disclaimer">📌 ${data.disclaimer}</div>` : ''}

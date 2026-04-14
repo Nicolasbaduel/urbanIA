@@ -1023,3 +1023,42 @@ body {
   border-top: 1px solid var(--border);
   text-align: right;
 }
+
+/* ── NOUVELLES SECTIONS ANALYSE ── */
+.marche-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 0.5rem;
+}
+
+.marche-item {
+  background: white;
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.marche-label { font-size: 0.7rem; color: var(--muted); }
+.marche-val { font-size: 0.88rem; font-weight: 600; color: var(--black); }
+.marche-source { font-size: 0.6rem; color: var(--muted); padding: 0.4rem 0.8rem; background: var(--off); grid-column: 1/-1; }
+
+.construct-box, .delais-box, .taxe-box {
+  background: var(--off);
+  border: 1px solid var(--border);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.construct-shon { font-size: 0.85rem; margin-bottom: 0.3rem; }
+.construct-detail { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+
+.delai-item { padding: 0.25rem 0; color: var(--gris); }
+.delai-total { margin-top: 0.4rem; padding-top: 0.4rem; border-top: 1px solid var(--border); font-size: 0.82rem; }
+
+.taxe-montant { font-size: 0.85rem; margin-bottom: 0.3rem; }
+.taxe-detail { font-size: 0.72rem; color: var(--muted); }
