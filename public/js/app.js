@@ -590,7 +590,7 @@ function renderCadastreCard(cad, coords) {
     } catch(e) {}
   } else {
     // Fallback : récupérer la géométrie directement depuis APICarto (public, pas de CORS)
-    fetch('https://apicarto.ign.fr/api/cadastre/parcelle?lon=' + coords.lon + '&lat=' + coords.lat + '&_limit=1')
+    fetch('/api/cadastre?lon=' + coords.lon + '&lat=' + coords.lat)
       .then(r => r.json())
       .then(data => {
         if (data.features && data.features.length > 0) {
