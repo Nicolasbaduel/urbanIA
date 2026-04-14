@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UrbanIA — Analysez n'importe quelle parcelle en 30 secondes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --noir: #0f0f0f;
+      --blanc: #fafaf8;
+      --rouge: #c0381a;
+      --rouge-light: #f5ede9;
+      --gris: #6b6b6b;
+      --border: #e2e0db;
+      --off: #f5f4f1;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--blanc);
+      color: var(--noir);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem;
+      background: rgba(250,250,248,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--rouge); }
+
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-links a {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--gris);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .nav-links a:hover { color: var(--noir); }
+
+    .nav-cta {
+      background: var(--noir) !important;
+      color: white !important;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.8rem !important;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 7rem 4rem 4rem;
+      gap: 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rouge);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 20px; height: 1px;
+      background: var(--rouge);
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.8rem, 5vw, 4.2rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--rouge);
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--gris);
+      line-height: 1.65;
+      max-width: 420px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn-primary {
+      background: var(--noir);
+      color: white;
+      padding: 0.85rem 2rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #333; }
+
+    .btn-secondary {
+      color: var(--noir);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      border-bottom: 1px solid var(--noir);
+      padding-bottom: 2px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 2rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-item { }
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      color: var(--noir);
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--gris);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── HERO VISUAL ── */
+    .hero-visual {
+      position: relative;
+    }
+
+    .hero-card {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .hero-card-header {
+      background: var(--noir);
+      padding: 0.8rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hero-card-header-logo {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: white;
+      letter-spacing: -0.01em;
+    }
+    .hero-card-header-logo span { color: var(--rouge); }
+
+    .hero-card-status {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.65rem;
+      color: #aaa;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    .hero-card-body { padding: 1.2rem; }
+
+    .mock-address {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 0.8rem;
+      background: var(--off);
+      border: 1px solid var(--border);
+      font-size: 0.78rem;
+      margin-bottom: 1rem;
+      color: var(--gris);
+    }
+    .mock-address strong { color: var(--noir); }
+
+    .mock-zone {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 0.8rem;
+      background: var(--off);
+      margin-bottom: 0.8rem;
+    }
+
+    .mock-zone-badge {
+      background: var(--noir);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+    }
+
+    .mock-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 0.8rem;
+    }
+
+    .mock-cell {
+      background: white;
+      padding: 0.6rem 0.4rem;
+      text-align: center;
+    }
+
+    .mock-cell-val {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--noir);
+      display: block;
+    }
+
+    .mock-cell-key {
+      font-size: 0.55rem;
+      color: var(--gris);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .mock-cadastre {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 0.8rem;
+    }
+
+    .mock-cad-cell {
+      background: var(--off);
+      padding: 0.5rem 0.4rem;
+      text-align: center;
+    }
+
+    .mock-cad-val {
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: block;
+    }
+    .mock-cad-val.green { color: #22a855; }
+
+    .mock-cad-key {
+      font-size: 0.52rem;
+      color: var(--gris);
+      text-transform: uppercase;
+    }
+
+    .mock-verdict {
+      background: #22a855;
+      color: white;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.78rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mock-risques {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.6rem 0;
+    }
+
+    .mock-risque {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.65rem;
+      color: var(--gris);
+      background: var(--off);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.5rem;
+    }
+
+    .mock-risque-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+    }
+
+    .floating-tag {
+      position: absolute;
+      background: white;
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.8rem;
+      font-size: 0.72rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .tag-1 { top: -1rem; right: -1.5rem; }
+    .tag-2 { bottom: 3rem; left: -1.5rem; }
+    .tag-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ── SECTION FEATURES ── */
+    .section {
+      padding: 6rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rouge);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-label::before {
+      content: ''; width: 20px; height: 1px; background: var(--rouge);
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      max-width: 600px;
+    }
+
+    .section-sub {
+      font-size: 0.95rem;
+      color: var(--gris);
+      line-height: 1.65;
+      max-width: 500px;
+      margin-bottom: 3rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .feature-card {
+      background: white;
+      padding: 2rem 1.5rem;
+      transition: background 0.2s;
+    }
+
+    .feature-card:hover { background: var(--off); }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-desc {
+      font-size: 0.8rem;
+      color: var(--gris);
+      line-height: 1.6;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      background: var(--noir);
+      color: white;
+      padding: 6rem 4rem;
+    }
+
+    .how-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .how-section .section-label { color: var(--rouge); }
+    .how-section .section-label::before { background: var(--rouge); }
+    .how-section .section-title { color: white; }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .step {
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: 1.5rem;
+    }
+
+    .step-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.5rem;
+      color: rgba(255,255,255,0.15);
+      display: block;
+      margin-bottom: 0.8rem;
+      line-height: 1;
+    }
+
+    .step-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: white;
+    }
+
+    .step-desc {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+    }
+
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .pricing-card {
+      background: white;
+      padding: 2.5rem 2rem;
+      position: relative;
+    }
+
+    .pricing-card.featured {
+      background: var(--noir);
+      color: white;
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: 1.2rem; right: 1.2rem;
+      background: var(--rouge);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+    }
+
+    .pricing-plan {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gris);
+      margin-bottom: 1rem;
+    }
+
+    .pricing-card.featured .pricing-plan { color: rgba(255,255,255,0.5); }
+
+    .pricing-price {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.8rem;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+      letter-spacing: -0.02em;
+    }
+
+    .pricing-period {
+      font-size: 0.75rem;
+      color: var(--gris);
+      margin-bottom: 1.5rem;
+    }
+
+    .pricing-card.featured .pricing-period { color: rgba(255,255,255,0.5); }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+
+    .pricing-features li {
+      font-size: 0.8rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gris);
+    }
+
+    .pricing-card.featured .pricing-features li {
+      border-color: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7);
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: #22a855;
+      font-weight: 600;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .pricing-features li.unavail::before { content: '—'; color: var(--border); }
+
+    .btn-pricing {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: white;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      transition: all 0.2s;
+    }
+
+    .btn-pricing:hover { background: var(--off); }
+
+    .pricing-card.featured .btn-pricing {
+      background: var(--rouge);
+      border-color: var(--rouge);
+      color: white;
+    }
+
+    .pricing-card.featured .btn-pricing:hover { background: #a83015; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--noir);
+      color: rgba(255,255,255,0.4);
+      padding: 3rem 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+    }
+    .footer-logo span { color: var(--rouge); }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer-links a {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover { color: white; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-left > * {
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-eyebrow { animation-delay: 0.1s; }
+    h1 { animation-delay: 0.2s; }
+    .hero-sub { animation-delay: 0.3s; }
+    .hero-ctas { animation-delay: 0.4s; }
+    .hero-stats { animation-delay: 0.5s; }
+
+    .hero-visual {
+      animation: fadeUp 0.8s ease 0.3s both;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 6rem 2rem 3rem;
+      }
+      .features-grid, .steps-grid, .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+      .section, .how-section { padding: 4rem 2rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+      .floating-tag { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">URBAN<span>IA</span></div>
+  <div class="nav-links">
+    <a href="#features">Fonctionnalités</a>
+    <a href="#how">Comment ça marche</a>
+    <a href="#pricing">Tarifs</a>
+    <a href="/index.html" class="nav-cta">Essayer gratuitement →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section style="background: var(--blanc); border-bottom: 1px solid var(--border);">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Intelligence artificielle & urbanisme</div>
+      <h1>Analysez <em>n'importe quelle</em> parcelle en 30 secondes</h1>
+      <p class="hero-sub">UrbanIA connecte le PLU officiel, le cadastre et l'IA pour répondre instantanément à vos questions d'urbanisme. Pour les agents immobiliers, promoteurs et investisseurs.</p>
+      <div class="hero-ctas">
+        <a href="/index.html" class="btn-primary">Analyser une parcelle →</a>
+        <a href="#how" class="btn-secondary">Voir comment ça marche</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-num">36 000+</span>
+          <span class="stat-label">Communes couvertes</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">30s</span>
+          <span class="stat-label">Par analyse</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">100%</span>
+          <span class="stat-label">Données officielles</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="floating-tag tag-1">
+        <div class="tag-dot" style="background:#22a855"></div>
+        GPU officiel · IGN
+      </div>
+      <div class="floating-tag tag-2">
+        <div class="tag-dot" style="background:var(--rouge)"></div>
+        Géorisques · GASPAR
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-card-header">
+          <div class="hero-card-header-logo">URBAN<span>IA</span></div>
+          <div class="hero-card-status">
+            <div class="status-dot"></div>
+            Analyse complete
+          </div>
+        </div>
+        <div class="hero-card-body">
+          <div class="mock-address">
+            📍 <strong>49 Avenue des Fauvettes, 33700 Mérignac</strong>
+          </div>
+          <div class="mock-zone">
+            <div style="display:flex;align-items:center;gap:0.6rem">
+              <span class="mock-zone-badge">Uj</span>
+              <span style="font-size:0.75rem;color:var(--gris)">Zone Urbaine · Mérignac</span>
+            </div>
+            <span style="font-size:0.65rem;color:#22a855;font-weight:600">✅ GPU officiel</span>
+          </div>
+          <div class="mock-grid">
+            <div class="mock-cell">
+              <span class="mock-cell-val">9-12m</span>
+              <span class="mock-cell-key">Hauteur max</span>
+            </div>
+            <div class="mock-cell">
+              <span class="mock-cell-val">5m</span>
+              <span class="mock-cell-key">Recul voirie</span>
+            </div>
+            <div class="mock-cell">
+              <span class="mock-cell-val">25%</span>
+              <span class="mock-cell-key">Pleine terre</span>
+            </div>
+            <div class="mock-cell">
+              <span class="mock-cell-val">Var.</span>
+              <span class="mock-cell-key">COS</span>
+            </div>
+          </div>
+          <div class="mock-cadastre">
+            <div class="mock-cad-cell">
+              <span class="mock-cad-val">259 m²</span>
+              <span class="mock-cad-key">Parcelle</span>
+            </div>
+            <div class="mock-cad-cell">
+              <span class="mock-cad-val green">130 m²</span>
+              <span class="mock-cad-key">Constructible</span>
+            </div>
+            <div class="mock-cad-cell">
+              <span class="mock-cad-val" style="font-size:0.7rem">Sec. BE 0187</span>
+              <span class="mock-cad-key">Ref. cadastre</span>
+            </div>
+          </div>
+          <div class="mock-verdict">
+            ✅ SOUS CONDITIONS · Véranda possible jusqu'à 19m² sans permis
+          </div>
+          <div class="mock-risques">
+            <div class="mock-risque"><div class="mock-risque-dot" style="background:#e68c1e"></div>Mouvement de terrain</div>
+            <div class="mock-risque"><div class="mock-risque-dot" style="background:#2563eb"></div>Séisme zone 2</div>
+            <div class="mock-risque"><div class="mock-risque-dot" style="background:#e68c1e"></div>Feu de forêt</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label">Fonctionnalités</div>
+  <h2 class="section-title">Tout ce qu'un professionnel de l'immo a besoin</h2>
+  <p class="section-sub">Connecté aux sources officielles françaises — GPU, IGN, Géorisques, APICarto.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon">🗺</span>
+      <div class="feature-title">Zone PLU officielle</div>
+      <p class="feature-desc">Connexion directe au Géoportail de l'Urbanisme (GPU) de l'IGN. Données officielles approuvées par les mairies.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📐</span>
+      <div class="feature-title">Cadastre & surfaces</div>
+      <p class="feature-desc">Surface exacte de la parcelle, emprise constructible estimée, référence cadastrale. Carte interactive avec polygone.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">🤖</span>
+      <div class="feature-title">Analyse IA en langage naturel</div>
+      <p class="feature-desc">Posez vos questions comme à un expert. "Puis-je construire une véranda ?" → Réponse claire OUI / NON / SOUS CONDITIONS.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⚠️</span>
+      <div class="feature-title">Risques naturels</div>
+      <p class="feature-desc">Inondations, mouvements de terrain, séismes, feux de forêt. Source officielle Géorisques / GASPAR.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">📄</span>
+      <div class="feature-title">Export PDF professionnel</div>
+      <p class="feature-desc">Rapport complet à envoyer à vos clients. Adresse, zone PLU, cadastre, analyse IA et budget en un seul document.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon">⚖️</span>
+      <div class="feature-title">Comparaison de parcelles</div>
+      <p class="feature-desc">Comparez deux adresses côte à côte. Idéal pour les investisseurs qui comparent plusieurs opportunités.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="how-inner">
+    <div class="section-label">Comment ça marche</div>
+    <h2 class="section-title" style="color:white">De l'adresse à l'analyse en 4 étapes</h2>
+
+    <div class="steps-grid">
+      <div class="step">
+        <span class="step-num">01</span>
+        <div class="step-title">Entrez votre adresse</div>
+        <p class="step-desc">Autocomplétion officielle via l'API adresse française. Résultats instantanés.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <div class="step-title">Posez votre question</div>
+        <p class="step-desc">En langage naturel : "puis-je construire une extension ?", "quel est le COS ?"</p>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <div class="step-title">UrbanIA analyse</div>
+        <p class="step-desc">GPU, cadastre IGN, Géorisques — toutes les sources officielles consultées en parallèle.</p>
+      </div>
+      <div class="step">
+        <span class="step-num">04</span>
+        <div class="step-title">Recevez le rapport</div>
+        <p class="step-desc">Réponse claire, règles applicables, budget estimé, risques et prochaines étapes. Export PDF en un clic.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="section-label">Tarifs</div>
+  <h2 class="section-title">Simple et transparent</h2>
+  <p class="section-sub">Commencez gratuitement, passez en Pro quand vous avez besoin de plus.</p>
+
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="pricing-plan">Gratuit</div>
+      <div class="pricing-price">0€</div>
+      <div class="pricing-period">pour toujours</div>
+      <ul class="pricing-features">
+        <li>5 analyses par jour</li>
+        <li>Zone PLU + règles</li>
+        <li>Carte cadastrale</li>
+        <li>Risques naturels</li>
+        <li class="unavail">Export PDF</li>
+        <li class="unavail">Comparaison parcelles</li>
+        <li class="unavail">Historique illimité</li>
+      </ul>
+      <a href="/index.html" class="btn-pricing">Commencer gratuitement</a>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="pricing-badge">Populaire</div>
+      <div class="pricing-plan">Pro</div>
+      <div class="pricing-price">29€</div>
+      <div class="pricing-period">par mois · sans engagement</div>
+      <ul class="pricing-features">
+        <li>Analyses illimitées</li>
+        <li>Zone PLU + règles</li>
+        <li>Carte cadastrale</li>
+        <li>Risques naturels</li>
+        <li>Export PDF professionnel</li>
+        <li>Comparaison parcelles</li>
+        <li>Historique illimité</li>
+      </ul>
+      <a href="/index.html" class="btn-pricing">Essayer 14 jours gratuit</a>
+    </div>
+
+    <div class="pricing-card">
+      <div class="pricing-plan">Agence</div>
+      <div class="pricing-price">99€</div>
+      <div class="pricing-period">par mois · jusqu'à 10 utilisateurs</div>
+      <ul class="pricing-features">
+        <li>Tout le plan Pro</li>
+        <li>10 comptes utilisateurs</li>
+        <li>Rapports marque blanche</li>
+        <li>API accès direct</li>
+        <li>Support prioritaire</li>
+        <li>Formation incluse</li>
+        <li>Facturation annuelle -20%</li>
+      </ul>
+      <a href="mailto:contact@urbania.fr" class="btn-pricing">Nous contacter</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">URBAN<span>IA</span></div>
+  <div style="font-size:0.75rem;text-align:center">
+    Données officielles : GPU IGN · APICarto · Géorisques · API Adresse<br>
+    <span style="font-size:0.65rem">⚠️ Informations indicatives — vérifiez en mairie avant tout dépôt</span>
+  </div>
+  <div class="footer-links">
+    <a href="/index.html">Application</a>
+    <a href="#pricing">Tarifs</a>
+    <a href="mailto:contact@urbania.fr">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>
