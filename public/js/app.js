@@ -309,7 +309,7 @@ async function launch() {
   // ── ÉTAPE 3 : Afficher la zone ──
   await sleep(500);
   renderZoneCard(zoneData, currentCoords);
-  await sleep(2500);
+  await sleep(4000);
   renderCadastreCard(currentCadastre, currentCoords);
   renderRisquesCard(currentRisques);
   pipeState(2, 'done'); pipeState(3, 'active');
