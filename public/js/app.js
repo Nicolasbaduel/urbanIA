@@ -312,13 +312,13 @@ async function launch() {
   await sleep(2500);
   renderCadastreCard(currentCadastre, currentCoords);
   renderRisquesCard(currentRisques);
-  renderQuickChips(zoneData);
   pipeState(2, 'done'); pipeState(3, 'active');
 
   // ── ÉTAPE 4 : Analyse IA ──
   document.getElementById('qaSection').classList.remove('hidden');
   await askQuestion(question);
   pipeState(3, 'done');
+  renderQuickChips(zoneData);
 
   document.getElementById('launchBtn').disabled = false;
 }
