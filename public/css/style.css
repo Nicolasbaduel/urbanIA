@@ -1568,3 +1568,161 @@ body {
   .how-grid { grid-template-columns: 1fr; }
   .top-badge { display: none; }
 }
+/* ═══════════════════════════════════════
+   TOPBAR — RAFFINEMENT CLARIMOL V2
+   Ajouté à la fin du fichier pour surcharger
+═══════════════════════════════════════ */
+
+/* Layout général de la topbar : plus d'air, meilleur équilibre */
+.topbar {
+  height: 64px;
+  padding: 0 2.5rem;
+  background: var(--ivory);
+  border-bottom: 1px solid var(--border-soft);
+  backdrop-filter: blur(12px);
+  background: rgba(245, 241, 232, 0.85);
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ─── Bouton PRO : pilule chartreuse premium ─── */
+.topbar button[onclick*="Upgrade"] {
+  background: var(--anis) !important;
+  color: var(--black) !important;
+  border: 1px solid var(--black) !important;
+  padding: 7px 16px !important;
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  border-radius: 999px !important;
+  position: relative;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+/* On ajoute un éclair discret avant "Pro" */
+.topbar button[onclick*="Upgrade"]::before {
+  content: "⚡";
+  font-size: 0.82rem;
+  line-height: 1;
+  font-weight: 400;
+}
+
+.topbar button[onclick*="Upgrade"]:hover {
+  background: var(--black) !important;
+  color: var(--anis) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 14, 14, 0.15);
+}
+
+/* ─── Connexion / Historique : pilules outline très fines ─── */
+.topbar button#authBtn,
+.topbar button#historyBtn {
+  background: transparent !important;
+  color: var(--black) !important;
+  border: 1px solid rgba(14, 14, 14, 0.18) !important;
+  padding: 7px 16px !important;
+  font-size: 0.72rem !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.02em !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: 'Inter', sans-serif !important;
+  cursor: pointer;
+  transition: all 0.25s ease !important;
+}
+
+/* Le petit numéro d'historique : chiffre dans un cercle anis */
+.topbar button#historyBtn {
+  position: relative;
+}
+
+.topbar button#authBtn:hover,
+.topbar button#historyBtn:hover {
+  background: var(--black) !important;
+  color: var(--ivory) !important;
+  border-color: var(--black) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 14, 14, 0.08);
+}
+
+/* ─── Badge "serveur actif" : discret et élégant ─── */
+.top-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  font-size: 0.65rem !important;
+  color: var(--muted) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  padding: 7px 14px !important;
+  border: 1px solid var(--border-soft) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.4) !important;
+  margin-left: 0.25rem;
+}
+
+.top-badge span {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Point vert qui respire, plus subtil */
+.live-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: var(--anis) !important;
+  box-shadow: 0 0 10px rgba(197, 232, 43, 0.7), 0 0 0 2px rgba(197, 232, 43, 0.15) !important;
+  animation: breathe 2.4s ease-in-out infinite !important;
+  flex-shrink: 0;
+}
+
+/* ─── Logo : plus de caractère ─── */
+.logo {
+  font-family: 'Fraunces', serif !important;
+  font-size: 1.4rem !important;
+  font-weight: 400 !important;
+  color: var(--black) !important;
+  letter-spacing: -0.025em !important;
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.logo b {
+  font-weight: 400 !important;
+  font-style: italic;
+}
+
+.logo::after {
+  content: '®' !important;
+  font-size: 0.5rem !important;
+  vertical-align: super !important;
+  opacity: 0.45 !important;
+  margin-left: 3px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+}
+
+/* ─── Responsive : on cache le badge serveur sur mobile ─── */
+@media (max-width: 900px) {
+  .topbar { padding: 0 1rem; height: auto; flex-wrap: wrap; gap: 0.5rem; padding: 0.75rem 1rem; }
+  .top-badge { display: none !important; }
+}
+
+@media (max-width: 640px) {
+  .topbar button#historyBtn span,
+  .topbar button#authBtn span { display: none; }
+  .top-right { gap: 0.35rem; }
+}
