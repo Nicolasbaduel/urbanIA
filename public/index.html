@@ -15,31 +15,31 @@
 <div class="topbar">
   <div class="logo">Urban<b>IA</b></div>
   <div class="top-right">
-    <button onclick="showUpgradeModal()">⚡ Pro</button>
+    <button onclick="showUpgradeModal()">Pro</button>
     <button id="authBtn" onclick="window.location.href='/auth.html'">Connexion</button>
     <button id="historyBtn" onclick="showHistory()">Historique</button>
     <div class="top-badge" id="serverStatus">
       <div class="live-dot"></div>
-      <span>Connexion au serveur…</span>
+      <span>Connexion au serveur...</span>
     </div>
   </div>
 </div>
 
 <div class="hero">
-  <div class="hero-eyebrow">Données PLU officielles · Géoportail de l'Urbanisme</div>
+  <div class="hero-eyebrow">Donnees PLU officielles &middot; Geoportail de l'Urbanisme</div>
   <h1>Puis-je construire<br>sur <em>ma parcelle</em> ?</h1>
-  <p>Décrivez votre projet en langage naturel. Notre IA analyse le règlement d'urbanisme applicable et vous répond immédiatement, avec citation des articles concernés.</p>
+  <p>Decrivez votre projet en langage naturel. Notre IA analyse le reglement d'urbanisme applicable et vous repond immediatement, avec citation des articles concernes.</p>
 
   <div class="search-container">
     <div class="search-box">
       <div class="search-row search-row-top">
-        <span class="s-icon">💬</span>
-        <input id="questionInput" class="s-input" placeholder="Ex : Puis-je construire une véranda de 15 m² dans mon jardin ?" autocomplete="off" onkeydown="if(event.key==='Enter') launch()">
+        <span class="s-icon">&#128172;</span>
+        <input id="questionInput" class="s-input" placeholder="Ex : Puis-je construire une veranda de 15 m2 dans mon jardin ?" autocomplete="off" onkeydown="if(event.key==='Enter') launch()">
       </div>
       <div class="search-row search-row-bottom">
         <span class="s-label">Adresse</span>
-        <input id="addressInput" class="s-input s-addr" placeholder="12 rue de la Paix, Fontainebleau…" autocomplete="off" oninput="onAddrInput()" onkeydown="if(event.key==='Enter') launch()">
-        <button class="search-btn" id="launchBtn" onclick="launch()">Analyser <span>→</span></button>
+        <input id="addressInput" class="s-input s-addr" placeholder="12 rue de la Paix, Fontainebleau..." autocomplete="off" oninput="onAddrInput()" onkeydown="if(event.key==='Enter') launch()">
+        <button class="search-btn" id="launchBtn" onclick="launch()">Analyser <span>&rarr;</span></button>
       </div>
     </div>
     <div class="suggestions" id="suggestions"></div>
@@ -49,12 +49,12 @@
 <main class="main">
 
   <div class="pipeline" id="pipeline">
-    <div class="pipe-step" id="ps0"><div class="pipe-icon">1</div><div class="pipe-label">Géolocalisation</div></div>
-    <div class="pipe-arrow">›</div>
-    <div class="pipe-step" id="ps1"><div class="pipe-icon">2</div><div class="pipe-label">Récupération PLU</div></div>
-    <div class="pipe-arrow">›</div>
-    <div class="pipe-step" id="ps2"><div class="pipe-icon">3</div><div class="pipe-label">Lecture règlement</div></div>
-    <div class="pipe-arrow">›</div>
+    <div class="pipe-step" id="ps0"><div class="pipe-icon">1</div><div class="pipe-label">Geolocalisation</div></div>
+    <div class="pipe-arrow">&rsaquo;</div>
+    <div class="pipe-step" id="ps1"><div class="pipe-icon">2</div><div class="pipe-label">Recuperation PLU</div></div>
+    <div class="pipe-arrow">&rsaquo;</div>
+    <div class="pipe-step" id="ps2"><div class="pipe-icon">3</div><div class="pipe-label">Lecture reglement</div></div>
+    <div class="pipe-arrow">&rsaquo;</div>
     <div class="pipe-step" id="ps3"><div class="pipe-icon">4</div><div class="pipe-label">Analyse IA</div></div>
   </div>
 
@@ -69,55 +69,55 @@
       </div>
       <div class="zone-right">
         <div class="zone-tags" id="zoneTags"></div>
-        <a class="gpu-btn" id="gpuBtn" href="https://www.geoportail-urbanisme.gouv.fr" target="_blank">Voir sur GPU →</a>
+        <a class="gpu-btn" id="gpuBtn" href="https://www.geoportail-urbanisme.gouv.fr" target="_blank">Voir sur GPU &rarr;</a>
       </div>
     </div>
     <div class="zone-rules" id="zoneRules"></div>
     <div class="zone-footer">
-      Source : <a id="gpuLink" href="https://www.geoportail-urbanisme.gouv.fr" target="_blank">Géoportail de l'Urbanisme (GPU)</a>
-      &nbsp;·&nbsp; Données officielles françaises
+      Source : <a id="gpuLink" href="https://www.geoportail-urbanisme.gouv.fr" target="_blank">Geoportail de l'Urbanisme (GPU)</a>
+      &nbsp;&middot;&nbsp; Donnees officielles francaises
       <span id="zoneDate"></span>
     </div>
   </div>
 
   <div class="qa-section hidden" id="qaSection">
-    <div class="qa-title">Questions fréquentes sur cette zone</div>
+    <div class="qa-title">Questions frequentes sur cette zone</div>
     <div class="qa-divider"></div>
     <div class="qa-title">Posez votre propre question</div>
     <div class="free-bar">
       <input id="freeQ" class="free-input" placeholder="Ex : Puis-je installer une piscine ? Quelle hauteur pour mon extension ?" onkeydown="if(event.key==='Enter') askFree()">
-      <button class="free-btn" id="askBtn" onclick="askFree()">Demander →</button>
+      <button class="free-btn" id="askBtn" onclick="askFree()">Demander &rarr;</button>
     </div>
     <div class="answers" id="answers"></div>
     <div class="quick-chips" id="quickChips"></div>
   </div>
 
   <div class="how" id="howSection">
-    <div class="how-title">Comment ça <em>fonctionne</em></div>
+    <div class="how-title">Comment ca <em>fonctionne</em></div>
     <div class="how-grid">
       <div class="how-card">
         <div class="how-num">1</div>
-        <div class="how-icon">📍</div>
+        <div class="how-icon">&#128205;</div>
         <h4>Votre adresse</h4>
-        <p>L'API Adresse officielle géolocalise précisément votre parcelle</p>
+        <p>L'API Adresse officielle geolocalise precisement votre parcelle</p>
       </div>
       <div class="how-card">
         <div class="how-num">2</div>
-        <div class="how-icon">🗺</div>
-        <h4>Zone PLU réelle</h4>
-        <p>Le Géoportail de l'Urbanisme identifie votre zone et son règlement</p>
+        <div class="how-icon">&#128506;</div>
+        <h4>Zone PLU reelle</h4>
+        <p>Le Geoportail de l'Urbanisme identifie votre zone et son reglement</p>
       </div>
       <div class="how-card">
         <div class="how-num">3</div>
-        <div class="how-icon">🧠</div>
+        <div class="how-icon">&#129504;</div>
         <h4>Analyse IA</h4>
-        <p>Claude lit le règlement et répond précisément à votre question</p>
+        <p>Claude lit le reglement et repond precisement a votre question</p>
       </div>
       <div class="how-card">
         <div class="how-num">4</div>
-        <div class="how-icon">✅</div>
-        <h4>Réponse claire</h4>
-        <p>OUI / NON / SOUS CONDITIONS avec toutes les règles applicables</p>
+        <div class="how-icon">&#9989;</div>
+        <h4>Reponse claire</h4>
+        <p>OUI / NON / SOUS CONDITIONS avec toutes les regles applicables</p>
       </div>
     </div>
   </div>
