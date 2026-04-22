@@ -1726,3 +1726,273 @@ body {
   .topbar button#authBtn span { display: none; }
   .top-right { gap: 0.35rem; }
 }
+.hero {
+  padding: 3rem 2rem 4rem !important;
+  text-align: left !important;
+  min-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before { display: none !important; }
+
+/* La pill du haut centrée */
+.hero-eyebrow {
+  align-self: center;
+  margin-bottom: 4rem !important;
+}
+
+/* Wrapper pour la composition titre + carte */
+.hero-composition {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Carte de France en dégradé, positionnée en fond */
+.hero-map-bg {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 75%;
+  max-width: 800px;
+  height: auto;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.88;
+  animation: fadeIn 1.8s ease;
+  filter: blur(1px);
+}
+
+/* Titre XXL éditorial Clarimol */
+.hero h1 {
+  font-family: 'Fraunces', serif !important;
+  font-size: clamp(3rem, 9vw, 8rem) !important;
+  font-weight: 300 !important;
+  line-height: 0.98 !important;
+  letter-spacing: -0.035em !important;
+  color: var(--black) !important;
+  margin: 0 0 2.5rem !important;
+  text-align: left !important;
+  position: relative;
+  z-index: 2;
+  padding-left: 0.5rem;
+}
+
+.hero h1 em {
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* Texte descriptif décalé, plus court, à gauche */
+.hero p {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--muted);
+  max-width: 420px;
+  margin: 0 0 3rem;
+  text-align: left !important;
+  padding-left: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.search-container {
+  max-width: 720px;
+  margin: 0 auto 0 0 !important;
+  position: relative;
+  z-index: 2;
+  padding-left: 0.5rem;
+}
+
+/* ─────────────────────────────────────
+   SECTION "COMMENT ÇA FONCTIONNE" DARK
+─────────────────────────────────────── */
+
+.how {
+  margin: 5rem -2rem 0 !important;
+  padding: 6rem 3rem 7rem !important;
+  border-top: none !important;
+  background: #0E0E0E !important;
+  color: var(--ivory) !important;
+  position: relative;
+  text-align: center;
+}
+
+/* Ligne pointillée horizontale en haut */
+.how::before {
+  content: '';
+  position: absolute;
+  top: 3.5rem;
+  left: 3rem;
+  right: 3rem;
+  height: 1px;
+  border-top: 1px dashed rgba(245, 241, 232, 0.18);
+}
+
+/* Badge "1" chartreuse au milieu de la ligne pointillée */
+.how-number-badge {
+  position: absolute;
+  top: calc(3.5rem - 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #0E0E0E;
+  border: 1px solid var(--anis);
+  color: var(--anis);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+/* Pill "À propos" style */
+.how-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 24px;
+  border: 1px solid rgba(245, 241, 232, 0.22);
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: rgba(245, 241, 232, 0.88);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  margin-top: 3rem;
+  margin-bottom: 2.5rem;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+/* Titre ÉNORME Fraunces light ivoire */
+.how-title {
+  font-family: 'Fraunces', serif !important;
+  font-size: clamp(2.5rem, 7vw, 6rem) !important;
+  font-weight: 300 !important;
+  line-height: 1.04 !important;
+  letter-spacing: -0.03em !important;
+  color: var(--ivory) !important;
+  margin: 0 auto 1.8rem !important;
+  text-align: center !important;
+  max-width: 1200px;
+}
+
+.how-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--ivory);
+}
+
+/* Sous-titre gris clair */
+.how-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: rgba(245, 241, 232, 0.5);
+  max-width: 680px;
+  margin: 0 auto 4.5rem !important;
+  text-align: center;
+}
+
+/* Grid des cards sur fond dark */
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto !important;
+}
+
+.how-card {
+  background: rgba(245, 241, 232, 0.03) !important;
+  border: 1px solid rgba(245, 241, 232, 0.08) !important;
+  border-radius: var(--r) !important;
+  padding: 1.8rem 1.3rem 1.5rem !important;
+  position: relative;
+  transition: all 0.35s ease !important;
+  text-align: left !important;
+}
+
+.how-card:hover {
+  background: rgba(197, 232, 43, 0.05) !important;
+  border-color: rgba(197, 232, 43, 0.25) !important;
+  transform: translateY(-3px);
+}
+
+.how-num {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  font-family: 'Fraunces', serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  color: rgba(245, 241, 232, 0.35) !important;
+  font-style: italic;
+}
+.how-num::before {
+  content: '— 0';
+  opacity: 0.6;
+}
+
+.how-icon {
+  font-size: 1.4rem;
+  margin-bottom: 1.3rem;
+  opacity: 0.8;
+  display: block;
+}
+
+.how-card h4 {
+  font-family: 'Fraunces', serif !important;
+  font-size: 1.1rem !important;
+  font-weight: 400 !important;
+  color: var(--ivory) !important;
+  margin-bottom: 0.5rem !important;
+  letter-spacing: -0.01em !important;
+}
+
+.how-card p {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.78rem !important;
+  font-weight: 300 !important;
+  color: rgba(245, 241, 232, 0.55) !important;
+  line-height: 1.55 !important;
+  margin: 0 !important;
+}
+
+/* ─────────────────────────────────────
+   RESPONSIVE
+─────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .hero { padding: 2rem 1rem 3rem !important; min-height: auto; text-align: center !important; }
+  .hero h1 { font-size: clamp(2.4rem, 11vw, 4rem) !important; text-align: center !important; padding: 0 !important; }
+  .hero p { text-align: center !important; max-width: 100%; padding: 0 !important; margin-left: auto; margin-right: auto; }
+  .search-container { margin: 0 auto !important; padding: 0 !important; }
+  .hero-map-bg { width: 100%; max-width: 500px; opacity: 0.4; }
+
+  .how { margin: 3rem -1rem 0 !important; padding: 4rem 1.5rem !important; }
+  .how::before { left: 1rem; right: 1rem; }
+  .how-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+}
+
+@media (max-width: 480px) {
+  .how-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2.3rem !important; }
+}
