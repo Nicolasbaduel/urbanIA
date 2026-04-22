@@ -30,26 +30,26 @@
 
   <div class="hero-composition">
 
-    <svg class="hero-map-bg" viewBox="0 0 600 640" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg class="hero-map-bg" viewBox="0 0 600 620" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
-        <radialGradient id="franceGrad" cx="45%" cy="40%" r="60%">
+        <radialGradient id="franceGrad" cx="50%" cy="42%" r="58%">
           <stop offset="0%" stop-color="#FFEC5C" stop-opacity="1"/>
-          <stop offset="25%" stop-color="#E8F43D" stop-opacity="0.95"/>
-          <stop offset="50%" stop-color="#C5E82B" stop-opacity="0.85"/>
-          <stop offset="72%" stop-color="#8CC63F" stop-opacity="0.6"/>
-          <stop offset="90%" stop-color="#6BA4C7" stop-opacity="0.35"/>
-          <stop offset="100%" stop-color="#6BA4C7" stop-opacity="0.1"/>
+          <stop offset="22%" stop-color="#E8F43D" stop-opacity="0.98"/>
+          <stop offset="45%" stop-color="#C5E82B" stop-opacity="0.92"/>
+          <stop offset="68%" stop-color="#8CC63F" stop-opacity="0.72"/>
+          <stop offset="88%" stop-color="#6BA4C7" stop-opacity="0.42"/>
+          <stop offset="100%" stop-color="#6BA4C7" stop-opacity="0.14"/>
         </radialGradient>
-        <radialGradient id="highlight1" cx="40%" cy="25%" r="28%">
-          <stop offset="0%" stop-color="#FFF8B0" stop-opacity="0.9"/>
+        <radialGradient id="highlight1" cx="42%" cy="30%" r="28%">
+          <stop offset="0%" stop-color="#FFF8B0" stop-opacity="0.85"/>
           <stop offset="100%" stop-color="#FFEC5C" stop-opacity="0"/>
         </radialGradient>
-        <radialGradient id="highlight2" cx="70%" cy="80%" r="30%">
-          <stop offset="0%" stop-color="#6BA4C7" stop-opacity="0.65"/>
+        <radialGradient id="highlight2" cx="65%" cy="75%" r="28%">
+          <stop offset="0%" stop-color="#6BA4C7" stop-opacity="0.55"/>
           <stop offset="100%" stop-color="#6BA4C7" stop-opacity="0"/>
         </radialGradient>
-        <filter id="blurSoft" x="-10%" y="-10%" width="120%" height="120%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="2.5"/>
+        <filter id="blurSoft" x="-6%" y="-6%" width="112%" height="112%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="1.2"/>
         </filter>
         <filter id="blurStrong" x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
@@ -57,124 +57,153 @@
       </defs>
 
       <!--
-        Silhouette simplifiée mais reconnaissable de la France
-        Orientation : Nord en haut, Ouest à gauche
-        Points-clés géographiques :
-        - Dunkerque/Calais en haut
-        - Cotentin (pointe du Nord-Ouest)
-        - Bretagne (finistere a l'Ouest)
-        - Hendaye (Sud-Ouest, Pyrenees)
-        - Perpignan (Sud, Pyrenees mediterranée)
-        - Nice / Menton (Sud-Est, frontiere italienne)
-        - Alsace / Strasbourg (Est, frontiere allemande)
-        - Lille (Nord)
+        FRANCE HEXAGONALE — vraies proportions
+        La France fait environ 1000km x 1000km, quasi carrée
+        Centre : Paris ~ (370, 160)
+        Largeur max : de Brest (100, 250) a Strasbourg (490, 170) = 390
+        Hauteur max : de Dunkerque (340, 60) a Perpignan (330, 495) = 435
+
+        Points cles (sens horaire depuis Dunkerque) :
+        - Nord : Dunkerque 340,60 - Calais 325,70 - Lille 360,80
+        - Nord-Est : Belgique 385,85 / 395,110 / 420,140 (Luxembourg)
+        - Est Alsace : Strasbourg 490,170 - Mulhouse 485,210
+        - Suisse : 500,230 - Geneve 490,270
+        - Alpes : 510,300 - Briancon 495,340 - Menton 490,395
+        - Mediterranee : Nice 480,420 - Marseille 430,460 - Sete 395,475
+        - Narbonne 370,485 - Perpignan 340,495
+        - Pyrenees : ligne jusqu'a Hendaye 170,470
+        - Atlantique : Biarritz 170,450 - Bordeaux 175,400 - La Rochelle 160,340
+        - Nantes 170,295 - Saint-Nazaire 155,285
+        - Bretagne Sud : Lorient 125,275 - Quiberon 115,280
+        - Finistere : Brest 75,255 - Pointe du Raz 65,265
+        - Bretagne Nord : Brest nord 75,235 - Roscoff 110,215
+        - Saint-Malo 180,195 - Cherbourg (pointe Cotentin) 210,130
+        - Le Havre 240,150 - Dieppe 275,115
+        - Baie de Somme 305,95 - Boulogne 315,80
       -->
 
       <g filter="url(#blurSoft)">
+        <!-- Contour principal France hexagonale -->
         <path d="
-          M 280 55
-          L 310 50
-          L 345 60
-          L 375 80
-          L 385 95
-          L 370 115
-          L 385 130
-          L 410 140
-          L 430 155
-          L 455 160
-          L 475 180
-          L 485 210
-          L 478 235
-          L 470 260
-          L 480 285
-          L 495 310
-          L 500 340
-          L 490 370
-          L 478 395
-          L 488 420
-          L 475 450
-          L 455 475
-          L 430 490
-          L 400 498
-          L 370 500
-          L 335 495
-          L 305 495
-          L 275 488
-          L 250 475
-          L 225 460
-          L 200 450
-          L 180 430
-          L 170 410
-          L 160 385
-          L 150 365
-          L 145 340
-          L 142 315
-          L 135 290
-          L 128 265
-          L 130 240
-          L 120 220
-          L 115 200
-          L 120 180
-          L 135 170
-          L 150 155
-          L 155 140
-          L 175 135
-          L 200 130
-          L 218 122
-          L 225 105
-          L 245 95
-          L 258 80
-          L 270 65
+          M 340 60
+          L 325 70
+          L 345 78
+          L 365 82
+          L 385 88
+          L 395 108
+          L 410 125
+          L 425 140
+          L 445 148
+          L 460 158
+          L 478 165
+          L 490 170
+          L 492 185
+          L 488 200
+          L 485 215
+          L 492 228
+          L 500 240
+          L 495 258
+          L 488 272
+          L 495 290
+          L 510 302
+          L 505 320
+          L 498 338
+          L 490 358
+          L 492 378
+          L 488 395
+          L 480 415
+          L 470 430
+          L 455 445
+          L 440 455
+          L 420 465
+          L 400 472
+          L 380 478
+          L 360 485
+          L 340 495
+          L 320 490
+          L 300 485
+          L 280 480
+          L 260 478
+          L 240 475
+          L 220 472
+          L 200 470
+          L 185 465
+          L 170 458
+          L 175 440
+          L 170 420
+          L 165 400
+          L 170 380
+          L 165 360
+          L 160 340
+          L 155 320
+          L 160 300
+          L 170 288
+          L 155 280
+          L 135 278
+          L 115 280
+          L 95 272
+          L 78 265
+          L 65 260
+          L 62 248
+          L 72 238
+          L 90 228
+          L 108 220
+          L 130 210
+          L 150 200
+          L 170 192
+          L 190 190
+          L 208 185
+          L 215 170
+          L 210 150
+          L 208 132
+          L 215 120
+          L 225 128
+          L 232 142
+          L 238 155
+          L 248 158
+          L 260 145
+          L 275 130
+          L 290 115
+          L 305 98
+          L 320 82
+          L 335 68
           Z"
               fill="url(#franceGrad)" opacity="0.95"/>
 
-        <!-- Cotentin : petite peninsule au Nord-Ouest -->
-        <path d="
-          M 210 120
-          L 205 95
-          L 195 75
-          L 200 60
-          L 215 65
-          L 222 85
-          L 225 105
-          L 218 122
-          Z"
-              fill="url(#franceGrad)" opacity="0.92"/>
-
-        <!-- Bretagne : grosse pointe vers l'Ouest -->
-        <path d="
-          M 155 200
-          L 115 195
-          L 85 200
-          L 60 215
-          L 55 235
-          L 75 245
-          L 110 240
-          L 140 230
-          L 155 215
-          Z"
-              fill="url(#franceGrad)" opacity="0.92"/>
-
         <!-- Corse -->
-        <ellipse cx="540" cy="495" rx="16" ry="35" fill="url(#franceGrad)" opacity="0.75" transform="rotate(10 540 495)"/>
+        <path d="
+          M 530 485
+          Q 523 478, 520 488
+          L 518 500
+          Q 515 520, 522 535
+          L 530 543
+          Q 540 545, 544 535
+          L 547 518
+          Q 548 500, 542 488
+          L 535 482
+          Z"
+              fill="url(#franceGrad)" opacity="0.78"/>
       </g>
 
-      <!-- Halos lumineux par-dessus -->
+      <!-- Halos lumineux -->
       <g filter="url(#blurStrong)">
-        <ellipse cx="260" cy="230" rx="95" ry="80" fill="url(#highlight1)"/>
-        <ellipse cx="400" cy="400" rx="85" ry="70" fill="url(#highlight2)"/>
+        <ellipse cx="310" cy="240" rx="115" ry="95" fill="url(#highlight1)"/>
+        <ellipse cx="400" cy="380" rx="90" ry="75" fill="url(#highlight2)"/>
       </g>
 
-      <!-- Particules lumineuses -->
+      <!-- Particules Clarimol -->
       <g opacity="0.85">
-        <circle cx="230" cy="290" r="4" fill="#FFEC5C"/>
-        <circle cx="340" cy="210" r="3" fill="#D8F02E"/>
-        <circle cx="410" cy="360" r="3.5" fill="#6BA4C7"/>
-        <circle cx="175" cy="360" r="2.5" fill="#FFEC5C"/>
-        <circle cx="455" cy="275" r="2.5" fill="#D8F02E"/>
-        <circle cx="290" cy="430" r="3" fill="#6BA4C7"/>
-        <circle cx="385" cy="170" r="2" fill="#FFEC5C"/>
-        <circle cx="140" cy="280" r="2" fill="#D8F02E"/>
+        <circle cx="270" cy="285" r="4" fill="#FFEC5C"/>
+        <circle cx="365" cy="200" r="3" fill="#D8F02E"/>
+        <circle cx="420" cy="370" r="3.5" fill="#6BA4C7"/>
+        <circle cx="210" cy="350" r="2.5" fill="#FFEC5C"/>
+        <circle cx="460" cy="280" r="2.5" fill="#D8F02E"/>
+        <circle cx="330" cy="430" r="3" fill="#6BA4C7"/>
+        <circle cx="400" cy="160" r="2" fill="#FFEC5C"/>
+        <circle cx="180" cy="280" r="2" fill="#D8F02E"/>
+        <circle cx="380" cy="320" r="2.5" fill="#FFEC5C"/>
+        <circle cx="450" cy="220" r="2" fill="#6BA4C7"/>
+        <circle cx="260" cy="400" r="2" fill="#D8F02E"/>
       </g>
     </svg>
 
